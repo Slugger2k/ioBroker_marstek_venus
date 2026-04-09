@@ -16,6 +16,7 @@ class MarstekVenusAdapter extends utils.Adapter {
         this.pendingRequests = new Map();
         this.pollInterval = null;
         this.discoveredIP = null;
+        this._pollingInProgress = false;
 
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
@@ -259,7 +260,7 @@ class MarstekVenusAdapter extends utils.Adapter {
                 this.pendingRequests.delete(id);
                 this.log.warn(`sendRequest ${method} to ${targetIP}:${this.config.udpPort} timed out`);
                 reject(new Error(`Request ${method} timed out`));
-            }, 15000);
+            }, 10000);
 
             this.pendingRequests.set(id, { resolve, reject, timeout });
 
@@ -331,11 +332,16 @@ class MarstekVenusAdapter extends utils.Adapter {
 
     startPolling() {
         this.log.info('Starting polling loop');
-        this.pollInterval = setInterval(() => this.poll(), this.config.pollInterval || 1000);
+        this.pollInterval = setInterval(() => this.poll(), this.config.pollInterval || 5000);
         this.poll();
     }
 
     async poll() {
+        if (this._pollingInProgress) {
+            this.log.debug('Poll cycle already in progress, skipping');
+            return;
+        }
+        this._pollingInProgress = true;
         try {
             await this.pollESStatus();
             await this.pollBatteryStatus();
@@ -349,6 +355,8 @@ class MarstekVenusAdapter extends utils.Adapter {
         } catch (err) {
             this.log.warn(`Poll cycle failed: ${err.message}`);
             await this.setStateAsync('info.connection', { val: false, ack: true });
+        } finally {
+            this._pollingInProgress = false;
         }
     }
 
