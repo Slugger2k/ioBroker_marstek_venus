@@ -280,7 +280,7 @@ class MarstekVenusAdapter extends utils.Adapter {
                         this.log.debug(`Broadcast retry for ${method} failed: ${err.message}`);
                     }
                 });
-            }, 25000);
+            }, 1000);
         });
     }
 
