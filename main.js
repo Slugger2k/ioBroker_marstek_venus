@@ -539,6 +539,7 @@ class MarstekVenusAdapter extends utils.Adapter {
         const stateName = id.split('.').pop();
         
         try {
+            const modeState = await this.getStateAsync('control.mode');
             if (stateName === 'mode') {
                 const mode = state.val;
                 let config = { mode };
@@ -570,10 +571,27 @@ class MarstekVenusAdapter extends utils.Adapter {
                         enable: enable?.val ? 1 : 0
                     };
                 }
-
+                
                 await this.sendRequest('ES.SetMode', { id: 0, config });
                 this.log.info(`Successfully set operating mode to ${mode}`);
                 await this.setStateAsync(id, { val: mode, ack: true });
+            } else if (modeState?.val === 'Manual' && stateName.startsWith('control.manual')) {
+                const timeNum = await this.getStateAsync('control.manualTimeNum');
+                const startTime = await this.getStateAsync('control.manualStartTime');
+                const endTime = await this.getStateAsync('control.manualEndTime');
+                const weekdays = await this.getStateAsync('control.manualWeekdays');
+                const power = await this.getStateAsync('control.manualPower');
+                const enable = await this.getStateAsync('control.manualEnable');
+                const manual_cfg = {
+                    time_num: timeNum?.val || 0,
+                    start_time: startTime?.val || '00:00',
+                    end_time: endTime?.val || '23:59',
+                    week_set: weekdays?.val || 127,
+                    power: power?.val || 100,
+                    enable: enable?.val ? 1 : 0
+                };
+                await this.sendRequest('ES.SetMode', { id: 0, config: { mode: 'Manual', manual_cfg } });
+                await this.setStateAsync(id, { val: state.val, ack: true });
             }
         } catch (err) {
             this.log.error(`Failed to set ${stateName}: ${err.message}`);

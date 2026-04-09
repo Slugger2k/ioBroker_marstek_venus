@@ -1,49 +1,150 @@
-# ioBroker.marstek-venus
+# ioBroker.marstek-venus Adapter
 
-ioBroker adapter for Marstek Venus C/D/E energy storage devices. Uses official local UDP Open API.
+The ioBroker.marstek-venus adapter provides full integration with Marstek Venus series energy storage systems, implementing the official Open API for complete device control and monitoring.
 
-## Features
+## Key Features
 
-✅ Full device auto-discovery on local network  
-✅ Real time 1 second polling for all values  
-✅ Complete state coverage:
-  - Battery status (SOC, temperature, capacity, charge flags)
-  - Power values (PV, grid, battery, load)
-  - Lifetime energy counters
-  - Network status (WiFi, signal strength, bluetooth)
-  - Device information
-
-✅ Full control support:
-  - Switch operating modes: Auto / AI / Manual / Passive
-  - Passive mode power and duration configuration
-  - All modes supported exactly as per official API
-
-✅ Supports all Venus models: Venus C, Venus D, Venus E
+- ✅ **Full device auto-discovery** on local network
+- ✅ **Real-time 1 second polling** for all values
+- ✅ **Complete state coverage** (battery, power, energy, network, device info)
+- ✅ **Full control support** (Auto/AI/Manual/Passive modes)
+- ✅ **Manual mode configuration** (time slots, weekdays, power, enable/disable)
+- ✅ **Passive mode configuration** (power, duration)
+- ✅ **Energy monitoring** (PV, grid import/export, load)
+- ✅ **Network status monitoring** (IP, WiFi, BLE)
+- ✅ **Energy meter with phase measurements** (A/B/C phases)
 
 ## Installation
 
-1. Enable Open API in Marstek mobile app and note UDP port (default 30000)
-2. Install this adapter via ioBroker admin interface
-3. Configure instance:
-   - Use Auto discovery (recommended) or enter device IP manually
+1. **Enable Open API** in Marstek mobile app and note UDP port (default 30000)
+2. **Install adapter** via ioBroker admin interface
+3. **Configure instance**:
+   - Auto discovery (recommended) or manual IP entry
    - Set UDP port as configured in app
    - Adjust poll interval (default 1000ms)
-4. Save and start adapter
+4. **Save and start** adapter
 
-## API Reference
+## Configuration Options
 
-Adapter implements 100% of official Marstek Open API Revision 1.0 as documented.
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| **ipAddress** | Leave empty for auto-discovery, or enter device IP | (empty) |
+| **udpPort** | UDP port for communication | 30000 |
+| **pollInterval** | How often to query device (ms) | 1000 |
+| **autoDiscovery** | Enable automatic device discovery | true |
 
-All API methods are implemented:
-- `Marstek.GetDevice`
-- `Wifi.GetStatus`
-- `BLE.GetStatus`
-- `Bat.GetStatus`
-- `PV.GetStatus`
-- `ES.GetStatus`
-- `ES.GetMode`
-- `ES.SetMode`
-- `EM.GetStatus`
+## States Documentation
+
+### Battery States
+- **`marstek-venus.0.battery.soc`** - State of charge (0-100%) | %, ro
+- **`marstek-venus.0.battery.temperature`** - Battery temperature in °C | °C, ro
+- **`marstek-venus.0.battery.capacity`** - Remaining capacity in Wh | Wh, ro
+- **`marstek-venus.0.battery.ratedCapacity`** - Rated capacity in Wh | Wh, ro
+- **`marstek-venus.0.battery.chargingAllowed`** - Charging permitted (true/false) | bool, rw
+- **`marstek-venus.0.battery.dischargingAllowed`** - Discharging permitted (true/false) | bool, rw
+
+### Power States
+- **`marstek-venus.0.power.pv`** - PV power generation in W | W, ro
+- **`marstek-venus.0.power.pvVoltage`** - PV voltage in V | V, ro
+- **`marstek-venus.0.power.pvCurrent`** - PV current in A | A, ro
+- **`marstek-venus.0.power.grid`** - Grid power flow (positive=import, negative=export) | W, ro
+- **`marstek-venus.0.power.battery`** - Battery power flow in W | W, ro
+- **`marstek-venus.0.power.load`** - Load consumption in W | W, ro
+
+### Energy States
+- **`marstek-venus.0.energy.pvTotal`** - Total PV energy generated in Wh | Wh, ro
+- **`marstek-venus.0.energy.gridImport`** - Total grid energy imported in Wh | Wh, ro
+- **`marstek-venus.0.energy.gridExport`** - Total grid energy exported in Wh | Wh, ro
+- **`marstek-venus.0.energy.loadTotal`** - Total load energy consumed in Wh | Wh, ro
+
+### Control States
+- **`marstek-venus.0.control.mode`** - Operating mode (Auto/AI/Manual/Passive) | enum, rw
+- **`marstek-venus.0.control.passivePower`** - Passive mode power target in W (positive=charge, negative=discharge) | W, rw
+- **`marstek-venus.0.control.passiveDuration`** - Passive mode duration in seconds | s, rw
+- **`marstek-venus.0.control.manualTimeNum`** - Manual mode time slot (0-9) | number, rw
+- **`marstek-venus.0.control.manualStartTime`** - Manual mode start time (HH:MM) | string, rw
+- **`marstek-venus.0.control.manualEndTime`** - Manual mode end time (HH:MM) | string, rw
+- **`marstek-venus.0.control.manualWeekdays`** - Manual mode weekdays (1=Mon, 127=all) | number, rw
+- **`marstek-venus.0.control.manualPower`** - Manual mode power target in W | W, rw
+- **`marstek-venus.0.control.manualEnable`** - Enable manual mode schedule (true/false) | bool, rw
+
+### Network States
+- **`marstek-venus.0.network.ip`** - Device IP address | ip, ro
+- **`marstek-venus.0.network.ssid`** - WiFi SSID | string, ro
+- **`marstek-venus.0.network.rssi`** - WiFi signal strength in dBm | dBm, ro
+- **`marstek-venus.0.network.bleState`** - BLE connection state (connected/disconnected) | enum, ro
+
+### Info States
+- **`marstek-venus.0.info.device`** - Device model (Venus A, B, C, D, E) | string, ro
+- **`marstek-venus.0.info.firmware`** - Firmware version number | string, ro
+- **`marstek-venus.0.info.mac`** - Device MAC address | mac, ro
+- **`marstek-venus.0.info.connection`** - Connection status (true/false) | bool, ro
+
+### Energy Meter States
+- **`marstek-venus.0.energymeter.ctState`** - CT sensor connection state (0=disconnected, 1=connected) | enum, ro
+- **`marstek-venus.0.energymeter.powerA`** - Phase A power in W | W, ro
+- **`marstek-venus.0.energymeter.powerB`** - Phase B power in W | W, ro
+- **`marstek-venus.0.energymeter.powerC`** - Phase C power in W | W, ro
+- **`marstek-venus.0.energymeter.powerTotal`** - Total three-phase power in W | W, ro
+
+## Control and Operation
+
+### Switching Modes
+- **Auto**: Fully automatic operation based on device algorithms
+- **AI**: AI-powered optimization mode
+- **Manual**: Schedule-based manual control with 10 time slots
+- **Passive**: Maintain battery at specified power level for specified duration
+
+### Manual Mode Configuration
+Manual mode uses 10 time slots per day (0-9). Configure:
+- **`control.manualTimeNum`** - Select time slot (0-9)
+- **`control.manualStartTime`** - Start time for the slot (HH:MM)
+- **`control.manualEndTime`** - End time for the slot (HH:MM)
+- **`control.manualWeekdays`** - Bitmask for weekdays (1=Mon, 127=all)
+- **`control.manualPower`** - Target power for the slot in W
+- **`control.manualEnable`** - Enable this time slot
+
+### Passive Mode Configuration
+- **`control.passivePower`** - Target power level in W (positive=charge, negative=discharge)
+- **`control.passiveDuration`** - Duration in seconds (0-86400)
+
+## API Implementation
+
+The adapter implements 100% of the official Marstek Open API Revision 1.0:
+
+- `Marstek.GetDevice` - Device discovery and information
+- `Wifi.GetStatus` - WiFi connection status
+- `BLE.GetStatus` - Bluetooth status
+- `Bat.GetStatus` - Battery detailed status
+- `PV.GetStatus` - PV array status
+- `ES.GetStatus` - Energy storage system status
+- `ES.GetMode` - Current operating mode
+- `ES.SetMode` - Set operating mode and configuration
+- `EM.GetStatus` - Energy meter measurements
+
+## Troubleshooting
+
+### Discovery Issues
+- Ensure UDP port 30000 is open and matches mobile app configuration
+- Check that device is on the same network subnet
+- Try manually entering IP address if auto-discovery fails
+- Verify device WiFi connection is working
+
+### Connection Problems
+- Check firewall settings allowing UDP traffic
+- Verify network connectivity to device
+- Restart adapter and device
+- Check WiFi signal strength (network.rssi)
+
+### Polling Issues
+- Adjust `pollInterval` if device becomes unresponsive
+- Default 1000ms provides 1-second updates but may be too frequent for some networks
+- Check for UDP packet loss
+
+### State Updates Not Working
+- Verify control states are writable (some are read-only)
+- Check that mode changes are properly configured
+- Ensure manual mode settings are valid
 
 ## Changelog
 
@@ -52,3 +153,12 @@ All API methods are implemented:
 - Full API implementation
 - Auto discovery support
 - All operating modes implemented
+
+## Support
+
+For support, visit the ioBroker forum or GitHub repository. When reporting issues, please include:
+- Adapter version
+- Device model
+- Firmware version
+- Network configuration
+- Detailed error messages

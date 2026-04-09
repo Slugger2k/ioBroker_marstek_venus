@@ -14,41 +14,60 @@
 </head>
 <body>
     <h2>Marstek Venus Adapter Configuration</h2>
-
+    
     <div class="note">
         <strong>Pre-requirements:</strong><br>
         1. Enable Open API in the official Marstek mobile app first<br>
         2. Note the configured UDP port (default: 30000)<br>
         3. Ensure device and ioBroker are on the same local network
     </div>
-
+    
     <div class="form-group">
         <label><input type="checkbox" id="autoDiscovery"> Auto discover devices on network</label>
     </div>
-
+    
     <div class="form-group">
         <label for="ipAddress">Device IP Address</label>
         <input type="text" id="ipAddress" placeholder="192.168.1.xxx">
     </div>
-
+    
     <div class="form-group">
         <label for="udpPort">UDP Port</label>
         <input type="number" id="udpPort" value="30000" min="1" max="65535">
     </div>
-
+    
     <div class="form-group">
         <label for="pollInterval">Poll interval (ms)</label>
         <input type="number" id="pollInterval" value="1000" min="500" max="60000">
     </div>
-
+    
     <button onclick="discover()">🔍 Discover Devices</button>
-
+    <button onclick="saveSettings()">💾 Save Settings</button>
+    <div id="uiStatus" style="margin-top:10px;"></div>
+    
     <script>
         function load(settings) {
             document.getElementById('autoDiscovery').checked = settings.autoDiscovery ?? true;
             document.getElementById('ipAddress').value = settings.ipAddress || '';
             document.getElementById('udpPort').value = settings.udpPort || 30000;
             document.getElementById('pollInterval').value = settings.pollInterval || 1000;
+        }
+
+        function discover() {
+            const status = document.getElementById('uiStatus');
+            status.textContent = 'Discovering devices...';
+            status.style.color = 'orange';
+            window.parent.postMessage({
+                command: 'sendTo',
+                instance: 'marstek-venus.0',
+                data: { command: 'discover' }
+            }, '*');
+            setTimeout(() => {
+                if (status.textContent === 'Discovering devices...') {
+                    status.textContent = 'No response from adapter. Check logs.';
+                    status.style.color = 'red';
+                }
+            }, 5000);
         }
 
         function save() {
@@ -60,10 +79,32 @@
             };
         }
 
-        function discover() {
-            window.parent.postMessage({ command: 'sendTo', instance: 'marstek-venus.0', data: { command: 'discover' } }, '*');
-            alert('Discovery broadcast sent. Check adapter log for discovered devices.');
+        function saveSettings() {
+            const settings = save();
+            window.parent.postMessage({
+                command: 'sendTo',
+                instance: 'marstek-venus.0',
+                data: { command: 'setSettings', values: settings }
+            }, '*');
+            const status = document.getElementById('uiStatus');
+            status.textContent = 'Settings saved.';
+            status.style.color = 'green';
+            setTimeout(() => status.textContent = '', 3000);
         }
+
+        window.addEventListener('message', (event) => {
+            const msg = event.data;
+            const status = document.getElementById('uiStatus');
+            if (msg && msg.command === 'returnStatus') {
+                if (msg.status === 'ok') {
+                    status.textContent = 'Discovery successful.';
+                    status.style.color = 'green';
+                } else {
+                    status.textContent = 'Discovery failed: ' + (msg.error || 'unknown error');
+                    status.style.color = 'red';
+                }
+            }
+        });
     </script>
 </body>
 </html>
