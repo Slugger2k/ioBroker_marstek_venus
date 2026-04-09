@@ -329,45 +329,88 @@ class MarstekVenusAdapter extends utils.Adapter {
 
             await this.setStateAsync('info.connection', { val: true, ack: true });
         } catch (err) {
-            this.log.debug(`Poll failed: ${err.message}`);
+            this.log.warn(`Poll cycle failed: ${err.message}`);
             await this.setStateAsync('info.connection', { val: false, ack: true });
         }
     }
 
     async pollESStatus() {
-        const result = await this.sendRequest('ES.GetStatus', { id: 0 });
-        
+        try {
+            const result = await this.sendRequest('ES.GetStatus', { id: 0 });
 
-        await this.setStateChangedAsync('power.pv', { val: result.pv_power, ack: true });
-        await this.setStateChangedAsync('power.grid', { val: result.ongrid_power, ack: true });
-        await this.setStateChangedAsync('power.battery', { val: result.bat_power, ack: true });
-        await this.setStateChangedAsync('power.load', { val: result.offgrid_power, ack: true });
-        await this.setStateChangedAsync('energy.pvTotal', { val: result.total_pv_energy, ack: true });
-        await this.setStateChangedAsync('energy.gridExport', { val: result.total_grid_output_energy, ack: true });
-        await this.setStateChangedAsync('energy.gridImport', { val: result.total_grid_input_energy, ack: true });
-        await this.setStateChangedAsync('energy.loadTotal', { val: result.total_load_energy, ack: true });
-        await this.setStateChangedAsync('battery.soc', { val: result.bat_soc, ack: true });
+            if (result.pv_power !== undefined && result.pv_power !== null) {
+                await this.setStateChangedAsync('power.pv', { val: result.pv_power, ack: true });
+            }
+            if (result.ongrid_power !== undefined && result.ongrid_power !== null) {
+                await this.setStateChangedAsync('power.grid', { val: result.ongrid_power, ack: true });
+            }
+            if (result.bat_power !== undefined && result.bat_power !== null) {
+                await this.setStateChangedAsync('power.battery', { val: result.bat_power, ack: true });
+            }
+            if (result.offgrid_power !== undefined && result.offgrid_power !== null) {
+                await this.setStateChangedAsync('power.load', { val: result.offgrid_power, ack: true });
+            }
+            if (result.total_pv_energy !== undefined && result.total_pv_energy !== null) {
+                await this.setStateChangedAsync('energy.pvTotal', { val: result.total_pv_energy, ack: true });
+            }
+            if (result.total_grid_output_energy !== undefined && result.total_grid_output_energy !== null) {
+                await this.setStateChangedAsync('energy.gridExport', { val: result.total_grid_output_energy, ack: true });
+            }
+            if (result.total_grid_input_energy !== undefined && result.total_grid_input_energy !== null) {
+                await this.setStateChangedAsync('energy.gridImport', { val: result.total_grid_input_energy, ack: true });
+            }
+            if (result.total_load_energy !== undefined && result.total_load_energy !== null) {
+                await this.setStateChangedAsync('energy.loadTotal', { val: result.total_load_energy, ack: true });
+            }
+            if (result.bat_soc !== undefined && result.bat_soc !== null) {
+                await this.setStateChangedAsync('battery.soc', { val: result.bat_soc, ack: true });
+            }
+        } catch (e) {
+            this.log.warn(`ES.GetStatus failed: ${e.message}`);
+        }
     }
 
     async pollBatteryStatus() {
-        const result = await this.sendRequest('Bat.GetStatus', { id: 0 });
-        
-        await this.setStateChangedAsync('battery.soc', { val: result.soc, ack: true });
-        await this.setStateChangedAsync('battery.temperature', { val: result.bat_temp, ack: true });
-        await this.setStateChangedAsync('battery.capacity', { val: result.bat_capacity, ack: true });
-        await this.setStateChangedAsync('battery.ratedCapacity', { val: result.rated_capacity, ack: true });
-        await this.setStateChangedAsync('battery.chargingAllowed', { val: result.charg_flag, ack: true });
-        await this.setStateChangedAsync('battery.dischargingAllowed', { val: result.dischrg_flag, ack: true });
+        try {
+            const result = await this.sendRequest('Bat.GetStatus', { id: 0 });
+            
+            if (result.soc !== undefined && result.soc !== null) {
+                await this.setStateChangedAsync('battery.soc', { val: result.soc, ack: true });
+            }
+            if (result.bat_temp !== undefined && result.bat_temp !== null) {
+                await this.setStateChangedAsync('battery.temperature', { val: result.bat_temp, ack: true });
+            }
+            if (result.bat_capacity !== undefined && result.bat_capacity !== null) {
+                await this.setStateChangedAsync('battery.capacity', { val: result.bat_capacity, ack: true });
+            }
+            if (result.rated_capacity !== undefined && result.rated_capacity !== null) {
+                await this.setStateChangedAsync('battery.ratedCapacity', { val: result.rated_capacity, ack: true });
+            }
+            if (result.charg_flag !== undefined && result.charg_flag !== null) {
+                await this.setStateChangedAsync('battery.chargingAllowed', { val: result.charg_flag, ack: true });
+            }
+            if (result.dischrg_flag !== undefined && result.dischrg_flag !== null) {
+                await this.setStateChangedAsync('battery.dischargingAllowed', { val: result.dischrg_flag, ack: true });
+            }
+        } catch (e) {
+            this.log.warn(`Bat.GetStatus failed: ${e.message}`);
+        }
     }
 
     async pollPVStatus() {
         try {
             const result = await this.sendRequest('PV.GetStatus', { id: 0 });
-            await this.setStateChangedAsync('power.pv', { val: result.pv_power, ack: true });
-            await this.setStateChangedAsync('power.pvVoltage', { val: result.pv_voltage, ack: true });
-            await this.setStateChangedAsync('power.pvCurrent', { val: result.pv_current, ack: true });
+            if (result.pv_power !== undefined && result.pv_power !== null) {
+                await this.setStateChangedAsync('power.pv', { val: result.pv_power, ack: true });
+            }
+            if (result.pv_voltage !== undefined && result.pv_voltage !== null) {
+                await this.setStateChangedAsync('power.pvVoltage', { val: result.pv_voltage, ack: true });
+            }
+            if (result.pv_current !== undefined && result.pv_current !== null) {
+                await this.setStateChangedAsync('power.pvCurrent', { val: result.pv_current, ack: true });
+            }
         } catch (e) {
-            this.log.debug(`Poll PV status failed: ${e.message}`);
+            this.log.warn(`PV.GetStatus failed: ${e.message}`);
         }
     }
 
@@ -375,39 +418,63 @@ class MarstekVenusAdapter extends utils.Adapter {
         try {
             const result = await this.sendRequest('Wifi.GetStatus', { id: 0 });
 
-            await this.setStateChangedAsync('network.ip', { val: result.sta_ip, ack: true });
-            await this.setStateChangedAsync('network.ssid', { val: result.ssid, ack: true });
-            await this.setStateChangedAsync('network.rssi', { val: result.rssi, ack: true });
+            if (result.sta_ip !== undefined && result.sta_ip !== null) {
+                await this.setStateChangedAsync('network.ip', { val: result.sta_ip, ack: true });
+            }
+            if (result.ssid !== undefined && result.ssid !== null) {
+                await this.setStateChangedAsync('network.ssid', { val: result.ssid, ack: true });
+            }
+            if (result.rssi !== undefined && result.rssi !== null) {
+                await this.setStateChangedAsync('network.rssi', { val: result.rssi, ack: true });
+            }
         } catch (e) {
-            this.log.debug(`Poll WiFi failed: ${e.message}`);
+            this.log.warn(`Wifi.GetStatus failed: ${e.message}`);
         }
     }
 
     async pollBLEStatus() {
         try {
             const result = await this.sendRequest('BLE.GetStatus', { id: 0 });
-            await this.setStateChangedAsync('network.bleState', { val: result.state, ack: true });
+            if (result.state !== undefined && result.state !== null) {
+                await this.setStateChangedAsync('network.bleState', { val: result.state, ack: true });
+            }
         } catch (e) {
-            this.log.debug(`Poll BLE status failed: ${e.message}`);
+            this.log.warn(`BLE.GetStatus failed: ${e.message}`);
         }
     }
 
     async pollEMStatus() {
         try {
             const result = await this.sendRequest('EM.GetStatus', { id: 0 });
-            await this.setStateChangedAsync('energymeter.ctState', { val: result.ct_state, ack: true });
-            await this.setStateChangedAsync('energymeter.powerA', { val: result.a_power, ack: true });
-            await this.setStateChangedAsync('energymeter.powerB', { val: result.b_power, ack: true });
-            await this.setStateChangedAsync('energymeter.powerC', { val: result.c_power, ack: true });
-            await this.setStateChangedAsync('energymeter.powerTotal', { val: result.total_power, ack: true });
+            if (result.ct_state !== undefined && result.ct_state !== null) {
+                await this.setStateChangedAsync('energymeter.ctState', { val: result.ct_state, ack: true });
+            }
+            if (result.a_power !== undefined && result.a_power !== null) {
+                await this.setStateChangedAsync('energymeter.powerA', { val: result.a_power, ack: true });
+            }
+            if (result.b_power !== undefined && result.b_power !== null) {
+                await this.setStateChangedAsync('energymeter.powerB', { val: result.b_power, ack: true });
+            }
+            if (result.c_power !== undefined && result.c_power !== null) {
+                await this.setStateChangedAsync('energymeter.powerC', { val: result.c_power, ack: true });
+            }
+            if (result.total_power !== undefined && result.total_power !== null) {
+                await this.setStateChangedAsync('energymeter.powerTotal', { val: result.total_power, ack: true });
+            }
         } catch (e) {
-            this.log.debug(`Poll EM status failed: ${e.message}`);
+            this.log.warn(`EM.GetStatus failed: ${e.message}`);
         }
     }
 
     async pollModeStatus() {
-        const result = await this.sendRequest('ES.GetMode', { id: 0 });
-        await this.setStateChangedAsync('control.mode', { val: result.mode, ack: true });
+        try {
+            const result = await this.sendRequest('ES.GetMode', { id: 0 });
+            if (result.mode !== undefined && result.mode !== null) {
+                await this.setStateChangedAsync('control.mode', { val: result.mode, ack: true });
+            }
+        } catch (e) {
+            this.log.warn(`ES.GetMode failed: ${e.message}`);
+        }
     }
 
     async onStateChange(id, state) {
