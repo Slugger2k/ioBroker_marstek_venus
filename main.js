@@ -331,16 +331,23 @@ class MarstekVenusAdapter extends utils.Adapter {
     }
 
     async pollWifiStatus() {
-        const result = await this.sendRequest('Wifi.GetStatus', { id: 0 });
-        
-        await this.setStateChangedAsync('network.ip', { val: result.sta_ip, ack: true });
-        await this.setStateChangedAsync('network.ssid', { val: result.ssid, ack: true });
-        await this.setStateChangedAsync('network.rssi', { val: result.rssi, ack: true });
+        try {
+            const result = await this.sendRequest('Wifi.GetStatus', { id: 0 });
+
+            await this.setStateChangedAsync('network.ip', { val: result.sta_ip, ack: true });
+            await this.setStateChangedAsync('network.ssid', { val: result.ssid, ack: true });
+            await this.setStateChangedAsync('network.rssi', { val: result.rssi, ack: true });
+        } catch (e) {
+            this.log.debug(`Poll WiFi failed: ${e.message}`);
+        }
     }
 
     async pollBLEStatus() {
-        const result = await this.sendRequest('BLE.GetStatus', { id: 0 });
-        await this.setStateChangedAsync('network.bleState', { val: result.state, ack: true });
+        try {
+            const result = await this.sendRequest('BLE.GetStatus', { id: 0 });
+            await this.setStateChangedAsync('network.bleState', { val: result.state, ack: true });
+        } catch (e) {
+        }
     }
 
     async pollEMStatus() {
