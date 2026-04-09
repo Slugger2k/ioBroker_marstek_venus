@@ -139,6 +139,7 @@ class MarstekVenusAdapter extends utils.Adapter {
 
     async discoverDevices() {
         this.log.info('Starting device discovery on local network');
+        this.log.debug(`Discovery target: UDP port ${this.config.udpPort}, broadcast address: 255.255.255.255`);
         
         const request = {
             id: this.requestId++,
@@ -147,10 +148,13 @@ class MarstekVenusAdapter extends utils.Adapter {
         };
 
         const message = Buffer.from(JSON.stringify(request));
+        this.log.debug(`Sending discovery request: ${message.toString()}`);
         
         this.socket.send(message, 0, message.length, this.config.udpPort, '255.255.255.255', (err) => {
             if (err) {
                 this.log.error(`Discovery broadcast failed: ${err.message}`);
+            } else {
+                this.log.debug('Discovery broadcast sent successfully');
             }
         });
     }
@@ -182,16 +186,19 @@ class MarstekVenusAdapter extends utils.Adapter {
     handleResponse(msgBuffer, rinfo) {
         try {
             const response = JSON.parse(msgBuffer.toString());
+            this.log.debug(`Received response from ${rinfo.address}:${rinfo.port}: ${JSON.stringify(response)}`);
             
             if (response.id !== undefined && this.pendingRequests.has(response.id)) {
                 const pending = this.pendingRequests.get(response.id);
                 clearTimeout(pending.timeout);
                 this.pendingRequests.delete(response.id);
-
+                
                 if (response.error) {
                     pending.reject(new Error(`API Error ${response.error.code}: ${response.error.message}`));
+                    this.log.debug(`Request ${response.id} failed: ${response.error.message}`);
                 } else {
                     pending.resolve(response.result);
+                    this.log.debug(`Request ${response.id} succeeded`);
                 }
             } else if (response.method === 'Marstek.GetDevice') {
                 this.log.info(`Discovered device: ${response.result.device} at ${response.result.ip}`);
@@ -200,9 +207,12 @@ class MarstekVenusAdapter extends utils.Adapter {
                     this.log.info(`Auto-selecting discovered device: ${this.config.ipAddress}`);
                     this.startPolling();
                 }
+            } else {
+                this.log.debug(`Received unsolicited message: ${response.method}`);
             }
         } catch (e) {
             this.log.debug(`Invalid response received: ${e.message}`);
+            this.log.debug(`Raw message: ${msgBuffer.toString()}`);
         }
     }
 
