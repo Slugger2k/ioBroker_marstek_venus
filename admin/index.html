@@ -46,13 +46,14 @@
     <div id="uiStatus" style="margin-top:10px;"></div>
     
     <script>
-        function load(settings) {
-            document.getElementById('autoDiscovery').checked = settings.autoDiscovery ?? true;
-            document.getElementById('ipAddress').value = settings.ipAddress || '';
-            document.getElementById('udpPort').value = settings.udpPort || 30000;
-            document.getElementById('pollInterval').value = settings.pollInterval || 1000;
+        function load() {
+            const saved = JSON.parse(localStorage.getItem('marstekVenusSettings') || '{}');
+            document.getElementById('autoDiscovery').checked = saved.autoDiscovery ?? true;
+            document.getElementById('ipAddress').value = saved.ipAddress || '';
+            document.getElementById('udpPort').value = saved.udpPort || '30000';
+            document.getElementById('pollInterval').value = saved.pollInterval || '1000';
         }
-
+        
         function discover() {
             const status = document.getElementById('uiStatus');
             status.textContent = 'Discovering devices...';
@@ -69,7 +70,7 @@
                 }
             }, 5000);
         }
-
+        
         function save() {
             return {
                 autoDiscovery: document.getElementById('autoDiscovery').checked,
@@ -78,7 +79,7 @@
                 pollInterval: parseInt(document.getElementById('pollInterval').value) || 1000
             };
         }
-
+        
         function saveSettings() {
             const settings = save();
             window.parent.postMessage({
@@ -86,12 +87,13 @@
                 instance: 'marstek-venus.0',
                 data: { command: 'setSettings', values: settings }
             }, '*');
+            localStorage.setItem('marstekVenusSettings', JSON.stringify(settings));
             const status = document.getElementById('uiStatus');
             status.textContent = 'Settings saved.';
             status.style.color = 'green';
             setTimeout(() => status.textContent = '', 3000);
         }
-
+        
         window.addEventListener('message', (event) => {
             const msg = event.data;
             const status = document.getElementById('uiStatus');
