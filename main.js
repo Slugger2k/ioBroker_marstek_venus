@@ -245,7 +245,7 @@ class MarstekVenusAdapter extends utils.Adapter {
                         this.log.info(`Device discovered but using configured IP: ${this.config.ipAddress}`);
                     }
                 } else {
-                    this.log.warn(`Received discovery response without IP address: ${JSON.stringify(response.result)}');
+                    this.log.warn(`Received discovery response without IP address: ${JSON.stringify(response.result)}`);
                 }
             } else {
                 this.log.debug(`Received unsolicited message: ${response.method}`);
