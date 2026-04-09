@@ -620,9 +620,15 @@ class MarstekVenusAdapter extends utils.Adapter {
                 await this.sendRequest('ES.SetMode', { id: 0, config: { mode: 'Manual', manual_cfg } });
                 await this.setStateAsync(id, { val: state.val, ack: true });
             }
-        } catch (err) {
-            this.log.error(`Failed to set ${stateName}: ${err.message}`);
-        }
+    } catch (err) {
+        this.log.error(`Failed to set ${stateName}: ${err.message}`);
+    }
+}
+
+    async setControlTarget(value) {
+        if (value == null) return;
+        const clampedValue = Math.min(Math.max(value, -1500), 1500);
+        await this.sendRequest('Marstek.SetTargetPower', { power: clampedValue });
     }
 
     async onMessage(obj) {
