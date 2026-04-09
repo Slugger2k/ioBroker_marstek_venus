@@ -15,7 +15,6 @@ class MarstekVenusAdapter extends utils.Adapter {
         this.requestId = 1;
         this.pendingRequests = new Map();
         this.pollInterval = null;
-        this.deviceInfo = null;
         this.discoveredIP = null;
 
         this.on('ready', this.onReady.bind(this));
@@ -151,6 +150,41 @@ class MarstekVenusAdapter extends utils.Adapter {
             type: 'state', common: { name: 'Manual mode enable', type: 'boolean', role: 'switch', read: true, write: true }, native: {}
         });
 
+        await this.setObjectNotExistsAsync('network', {
+            type: 'channel', common: { name: 'Network information' }, native: {}
+        });
+        await this.setObjectNotExistsAsync('network.ip', {
+            type: 'state', common: { name: 'Device IP', type: 'string', role: 'text', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('network.ssid', {
+            type: 'state', common: { name: 'WiFi SSID', type: 'string', role: 'text', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('network.rssi', {
+            type: 'state', common: { name: 'WiFi signal strength', type: 'number', unit: 'dBm', role: 'value', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('network.bleState', {
+            type: 'state', common: { name: 'BLE state', type: 'string', role: 'text', read: true, write: false }, native: {}
+        });
+
+        await this.setObjectNotExistsAsync('energymeter', {
+            type: 'channel', common: { name: 'Energy meter' }, native: {}
+        });
+        await this.setObjectNotExistsAsync('energymeter.ctState', {
+            type: 'state', common: { name: 'CT state (0=disconnected, 1=connected)', type: 'number', role: 'value', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('energymeter.powerA', {
+            type: 'state', common: { name: 'Phase A power', type: 'number', unit: 'W', role: 'value.power', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('energymeter.powerB', {
+            type: 'state', common: { name: 'Phase B power', type: 'number', unit: 'W', role: 'value.power', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('energymeter.powerC', {
+            type: 'state', common: { name: 'Phase C power', type: 'number', unit: 'W', role: 'value.power', read: true, write: false }, native: {}
+        });
+        await this.setObjectNotExistsAsync('energymeter.powerTotal', {
+            type: 'state', common: { name: 'Total power', type: 'number', unit: 'W', role: 'value.power', read: true, write: false }, native: {}
+        });
+
         await this.subscribeStatesAsync('control.*');
         await this.setStateAsync('info.connection', { val: false, ack: true });
     }
@@ -219,7 +253,7 @@ class MarstekVenusAdapter extends utils.Adapter {
                 reject(new Error(`Request ${method} timed out`));
             }, 5000);
 
-            this.pendingRequests.set(id, { resolve, reject, timeout, method });
+            this.pendingRequests.set(id, { resolve, reject, timeout });
 
             this.socket.send(message, 0, message.length, this.config.udpPort, this.discoveredIP || this.config.ipAddress, (err) => {
                 if (err) {
@@ -333,6 +367,7 @@ class MarstekVenusAdapter extends utils.Adapter {
             await this.setStateChangedAsync('power.pvVoltage', { val: result.pv_voltage, ack: true });
             await this.setStateChangedAsync('power.pvCurrent', { val: result.pv_current, ack: true });
         } catch (e) {
+            this.log.debug(`Poll PV status failed: ${e.message}`);
         }
     }
 
@@ -353,6 +388,7 @@ class MarstekVenusAdapter extends utils.Adapter {
             const result = await this.sendRequest('BLE.GetStatus', { id: 0 });
             await this.setStateChangedAsync('network.bleState', { val: result.state, ack: true });
         } catch (e) {
+            this.log.debug(`Poll BLE status failed: ${e.message}`);
         }
     }
 
@@ -365,6 +401,7 @@ class MarstekVenusAdapter extends utils.Adapter {
             await this.setStateChangedAsync('energymeter.powerC', { val: result.c_power, ack: true });
             await this.setStateChangedAsync('energymeter.powerTotal', { val: result.total_power, ack: true });
         } catch (e) {
+            this.log.debug(`Poll EM status failed: ${e.message}`);
         }
     }
 
