@@ -263,6 +263,7 @@ class MarstekVenusAdapter extends utils.Adapter {
 
             this.pendingRequests.set(id, { resolve, reject, timeout });
 
+            this.log.debug(`Sending ${method} to ${targetIP}:${this.config.udpPort}`);
             this.socket.send(message, 0, message.length, this.config.udpPort, targetIP, (err) => {
                 if (err) {
                     clearTimeout(timeout);
@@ -271,6 +272,14 @@ class MarstekVenusAdapter extends utils.Adapter {
                     reject(err);
                 }
             });
+
+            setTimeout(() => {
+                this.socket.send(message, 0, message.length, this.config.udpPort, '255.255.255.255', (err) => {
+                    if (err) {
+                        this.log.debug(`Broadcast retry for ${method} failed: ${err.message}`);
+                    }
+                });
+            }, 100);
         });
     }
 
