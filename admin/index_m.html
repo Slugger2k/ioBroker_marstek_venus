@@ -10,41 +10,31 @@
         input { width: 100%; padding: 8px; box-sizing: border-box; }
         button { padding: 10px 15px; background: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .note { background: #e3f2fd; padding: 12px; border-radius: 4px; margin: 15px 0; font-size: 0.9em; }
+        #status { display: none; margin-top: 10px; }
+        #status.success { background: #c8e6c9; color: #256029; border: 1px solid #2e7d32; }
+        #status.error { background: #ffcdd2; color: #c62828; border: 1px solid #e57373; }
     </style>
 </head>
 <body>
     <h2>Marstek Venus Adapter Configuration</h2>
-
-    <div class="note">
-        <strong>Pre-requirements:</strong><br>
-        1. Enable Open API in the official Marstek mobile app first<br>
-        2. Note the configured UDP port (default: 30000)<br>
-        3. Ensure device and ioBroker are on the same local network
-    </div>
-
+    <div id="status"></div>
     <div class="form-group">
         <label><input type="checkbox" id="autoDiscovery"> Auto discover devices on network</label>
     </div>
-
     <div class="form-group">
         <label for="ipAddress">Device IP Address</label>
         <input type="text" id="ipAddress" placeholder="192.168.1.xxx">
     </div>
-
     <div class="form-group">
         <label for="udpPort">UDP Port</label>
         <input type="number" id="udpPort" value="30000" min="1" max="65535">
     </div>
-
     <div class="form-group">
         <label for="pollInterval">Poll interval (ms)</label>
         <input type="number" id="pollInterval" value="1000" min="500" max="60000">
     </div>
-
     <button onclick="discover()">🔍 Discover Devices</button>
-
-    <button onclick="window.parent.document.querySelector('.btn-save-close').click();">Save</button>
-
+    <button onclick="saveSettings()">💾 Save Settings</button>
     <script>
         function load(settings) {
             document.getElementById('autoDiscovery').checked = settings.autoDiscovery ?? true;
@@ -52,20 +42,34 @@
             document.getElementById('udpPort').value = settings.udpPort || 30000;
             document.getElementById('pollInterval').value = settings.pollInterval || 1000;
         }
-
-        function save() {
-            return {
+        function showMessage(msg, type) {
+            const el = document.getElementById('status');
+            el.textContent = msg;
+            el.className = type;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+        function discover() {
+            window.parent.postMessage({ command: 'sendTo', instance: 'marstek-venus.0', data: { command: 'discover' } }, '*');
+            showMessage('Discovery broadcast sent. Check adapter log.', 'success');
+        }
+        function saveSettings() {
+            const settings = {
                 autoDiscovery: document.getElementById('autoDiscovery').checked,
                 ipAddress: document.getElementById('ipAddress').value.trim(),
                 udpPort: parseInt(document.getElementById('udpPort').value) || 30000,
                 pollInterval: parseInt(document.getElementById('pollInterval').value) || 1000
             };
+            window.parent.postMessage({ command: 'sendTo', instance: 'marstek-venus.0', data: { command: 'setSettings', values: settings } }, '*');
+            showMessage('Settings saved.', 'success');
         }
-
-        function discover() {
-            window.parent.postMessage({ command: 'sendTo', instance: 'marstek-venus.0', data: { command: 'discover' } }, '*');
-            alert('Discovery broadcast sent. Check adapter log for discovered devices.');
-        }
+        window.addEventListener('message', (event) => {
+            const msg = event.data;
+            if (msg && msg.command === 'sendTo' && msg.data) {
+                // Example handling; can be extended with specific response parsing
+                console.log('Response from adapter:', msg.data);
+            }
+        });
     </script>
 </body>
 </html>
