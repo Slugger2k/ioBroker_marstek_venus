@@ -58,9 +58,17 @@ const mockAdapterCore = {
 };
 require.cache[require.resolve('@iobroker/adapter-core')] = { exports: mockAdapterCore };
 
-// Now load the actual adapter
-delete require.cache[require.resolve('../main.js')];
-const Adapter = require('../main.js');
+// Now load the actual adapter - clear ALL caches including adapter-core
+const adapterCorePath = require.resolve('@iobroker/adapter-core');
+Object.keys(require.cache).forEach(key => {
+    if (key === adapterCorePath || key.includes('/lib/') || key.endsWith('main.js')) {
+        delete require.cache[key];
+    }
+});
+// Re-mock adapter-core
+require.cache[adapterCorePath] = { exports: mockAdapterCore };
+const MarstekVenusAdapter = require('../main.js');
+const Adapter = (options) => new MarstekVenusAdapter(options);
 
 describe('MarstekVenusAdapter', function() {
     let adapter;
