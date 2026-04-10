@@ -232,7 +232,11 @@ describe('MarstekVenusAdapter', function() {
         });
 
         it('adds request to pending queue', async () => {
+            adapter._requestQueue._shuttingDown = false;
+            adapter._requestQueue.queue = [];
+            adapter._requestQueue._busy = false;
             const promise = adapter.sendRequest('ES.GetStatus');
+            clock.tick(1);
             expect(adapter.pendingRequests.size).to.equal(1);
             
             const req = adapter.pendingRequests.values().next().value;
@@ -243,7 +247,11 @@ describe('MarstekVenusAdapter', function() {
         });
 
         it('handles timeout correctly', async () => {
+            adapter._requestQueue._shuttingDown = false;
+            adapter._requestQueue.queue = [];
+            adapter._requestQueue._busy = false;
             const promise = adapter.sendRequest('ES.GetStatus');
+            clock.tick(1);
             clock.tick(10000);
             
             try {
@@ -256,7 +264,11 @@ describe('MarstekVenusAdapter', function() {
         });
 
         it('handles socket send errors', async () => {
+            adapter._requestQueue._shuttingDown = false;
+            adapter._requestQueue.queue = [];
+            adapter._requestQueue._busy = false;
             mockSocket.send.callsArgWith(5, new Error('Send failed'));
+            clock.tick(1);
             
             try {
                 await adapter.sendRequest('ES.GetStatus');
@@ -281,7 +293,11 @@ describe('MarstekVenusAdapter', function() {
         });
 
         it('resolves pending request on success', async () => {
+            adapter._requestQueue._shuttingDown = false;
+            adapter._requestQueue.queue = [];
+            adapter._requestQueue._busy = false;
             const promise = adapter.sendRequest('ES.GetStatus');
+            clock.tick(1);
             const reqId = adapter.requestId - 1;
 
             adapter.handleResponse(
@@ -293,7 +309,11 @@ describe('MarstekVenusAdapter', function() {
         });
 
         it('rejects on error response', async () => {
+            adapter._requestQueue._shuttingDown = false;
+            adapter._requestQueue.queue = [];
+            adapter._requestQueue._busy = false;
             const promise = adapter.sendRequest('ES.GetStatus');
+            clock.tick(1);
             const reqId = adapter.requestId - 1;
 
             adapter.handleResponse(

@@ -2,6 +2,7 @@
 
 const utils = require('@iobroker/adapter-core');
 const dgram = require('node:dgram');
+const { RateLimitQueue } = require('./lib/request-queue');
 
 class MarstekVenusAdapter extends utils.Adapter {
     constructor(options = {}) {
@@ -14,6 +15,7 @@ class MarstekVenusAdapter extends utils.Adapter {
         this.requestId = 1;
         this.pendingRequests = new Map();
         this.pendingRequestsByMethod = new Map();
+        this._requestQueue = null;
         this.pollInterval = null;
         this.slowPollInterval = null;
         this.fastPollInterval = null;
@@ -45,6 +47,8 @@ class MarstekVenusAdapter extends utils.Adapter {
             const address = this.socket.address();
             this.log.debug(`UDP socket bound successfully to ${address.address}:${address.port}`);
 
+            this._requestQueue = new RateLimitQueue({ intervalMs: 1000 });
+
             if (this.config.autoDiscovery && !this.config.ipAddress) {
                 this.discoverDevices().catch(err => this.log.error(`Discovery failed: ${err.message}`));
             } else if (this.config.ipAddress) {
@@ -57,6 +61,11 @@ class MarstekVenusAdapter extends utils.Adapter {
     }
 
     async sendRequest(method, params = {}) {
+        if (!this._requestQueue) {
+            this.log.error('sendRequest: Request queue not initialized');
+            throw new Error('Request queue not initialized');
+        }
+
         const targetIP = this.discoveredIP || this.config.ipAddress;
 
         if (!targetIP) {
@@ -73,11 +82,11 @@ class MarstekVenusAdapter extends utils.Adapter {
 
         const maxRetries = this.config.maxRetries || 1;
         const timeoutMs = this.config.requestTimeout || 5000;
+        const id = this.requestId++;
+        const request = { id, method, params };
+        const message = Buffer.from(JSON.stringify(request));
 
-        const promise = new Promise((resolve, reject) => {
-            const id = this.requestId++;
-            const request = { id, method, params };
-            const message = Buffer.from(JSON.stringify(request));
+        const promise = this._requestQueue.enqueue(() => new Promise((resolve, reject) => {
             let retryCount = 0;
 
             const sendOnce = () => {
@@ -112,7 +121,7 @@ class MarstekVenusAdapter extends utils.Adapter {
             };
 
             sendOnce();
-        });
+        }));
 
         this.pendingRequestsByMethod.set(method, promise);
         return promise;
@@ -214,6 +223,7 @@ class MarstekVenusAdapter extends utils.Adapter {
             if (this.pollInterval) clearInterval(this.pollInterval);
             if (this.slowPollInterval) clearInterval(this.slowPollInterval);
             if (this.fastPollInterval) clearInterval(this.fastPollInterval);
+            if (this._requestQueue) this._requestQueue.clear();
             if (this.socket) this.socket.close();
 
             for (const [id, pending] of this.pendingRequests) {
