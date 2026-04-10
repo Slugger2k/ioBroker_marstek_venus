@@ -112,6 +112,7 @@ describe('MarstekVenusAdapter', function() {
 
         // Clear pending requests and intervals from any accidental polls triggered during setup
         adapter.pendingRequests.clear();
+        adapter.pendingRequestsByMethod = new Map();
         if (adapter.pollInterval) {
             clearInterval(adapter.pollInterval);
             adapter.pollInterval = null;
@@ -215,6 +216,7 @@ describe('MarstekVenusAdapter', function() {
             adapter.slowPollInterval = null;
             adapter.fastPollInterval = null;
             adapter.pendingRequests.clear();
+            adapter.pendingRequestsByMethod = new Map();
         });
 
         it('rejects when no target IP', async () => {
@@ -242,13 +244,13 @@ describe('MarstekVenusAdapter', function() {
 
         it('handles timeout correctly', async () => {
             const promise = adapter.sendRequest('ES.GetStatus');
-            clock.tick(20001);
+            clock.tick(60000);
             
             try {
                 await promise;
                 expect.fail('Should timeout');
             } catch (e) {
-                expect(e.message).to.include('timed out');
+                expect(e.message).to.include('3 attempts');
             }
             expect(adapter.pendingRequests.size).to.equal(0);
         });
@@ -268,6 +270,14 @@ describe('MarstekVenusAdapter', function() {
     describe('handleResponse()', () => {
         beforeEach(async () => {
             await adapter.onReady();
+            if (adapter.pollInterval) clearInterval(adapter.pollInterval);
+            if (adapter.slowPollInterval) clearInterval(adapter.slowPollInterval);
+            if (adapter.fastPollInterval) clearInterval(adapter.fastPollInterval);
+            adapter.pollInterval = null;
+            adapter.slowPollInterval = null;
+            adapter.fastPollInterval = null;
+            adapter.pendingRequests.clear();
+            adapter.pendingRequestsByMethod = new Map();
         });
 
         it('resolves pending request on success', async () => {
@@ -724,6 +734,81 @@ describe('MarstekVenusAdapter', function() {
             await adapter.pollInfoStatus();
             expect(adapter.log.warn.calledWithMatch(/ES.GetInfo failed/)).to.be.true;
         });
+
+        it('pollPower updates all power states', async () => {
+            adapter.sendRequest = sandbox.stub().resolves({
+                pv_power: 500,
+                ongrid_power: 200,
+                bat_power: -100,
+                offgrid_power: 150
+            });
+
+            await adapter.pollPower();
+            expect(adapter.setStateChangedAsync.callCount).to.equal(4);
+            expect(adapter.setStateChangedAsync.calledWith('power.pv', { val: 500, ack: true })).to.be.true;
+            expect(adapter.setStateChangedAsync.calledWith('power.grid', { val: 200, ack: true })).to.be.true;
+            expect(adapter.setStateChangedAsync.calledWith('power.battery', { val: -100, ack: true })).to.be.true;
+            expect(adapter.setStateChangedAsync.calledWith('power.load', { val: 150, ack: true })).to.be.true;
+        });
+
+        it('pollPower handles partial response with some null values', async () => {
+            adapter.sendRequest = sandbox.stub().resolves({
+                pv_power: 500,
+                ongrid_power: null,
+                bat_power: undefined,
+                offgrid_power: 150
+            });
+
+            await adapter.pollPower();
+            expect(adapter.setStateChangedAsync.callCount).to.equal(2);
+            expect(adapter.setStateChangedAsync.calledWith('power.pv', { val: 500, ack: true })).to.be.true;
+            expect(adapter.setStateChangedAsync.calledWith('power.load', { val: 150, ack: true })).to.be.true;
+        });
+
+        it('pollPower handles errors gracefully', async () => {
+            adapter.sendRequest = sandbox.stub().rejects(new Error('Power error'));
+
+            await adapter.pollPower();
+            expect(adapter.log.warn.calledWithMatch(/pollPower failed/)).to.be.true;
+        });
+
+        it('pollPVStatus updates pv power, voltage and current', async () => {
+            adapter.sendRequest = sandbox.stub().resolves({
+                pv_power: 500,
+                pv_voltage: 220,
+                pv_current: 2.3
+            });
+
+            await adapter.pollPVStatus();
+            expect(adapter.setStateChangedAsync.callCount).to.equal(3);
+            expect(adapter.setStateChangedAsync.calledWith('power.pv', { val: 500, ack: true })).to.be.true;
+            expect(adapter.setStateChangedAsync.calledWith('power.pvVoltage', { val: 220, ack: true })).to.be.true;
+            expect(adapter.setStateChangedAsync.calledWith('power.pvCurrent', { val: 2.3, ack: true })).to.be.true;
+        });
+
+        it('pollPVStatus handles only voltage present', async () => {
+            adapter.sendRequest = sandbox.stub().resolves({
+                pv_power: null,
+                pv_voltage: 220,
+                pv_current: null
+            });
+
+            await adapter.pollPVStatus();
+            expect(adapter.setStateChangedAsync.callCount).to.equal(1);
+            expect(adapter.setStateChangedAsync.calledWith('power.pvVoltage', { val: 220, ack: true })).to.be.true;
+        });
+
+        it('pollPVStatus handles only current present', async () => {
+            adapter.sendRequest = sandbox.stub().resolves({
+                pv_power: null,
+                pv_voltage: null,
+                pv_current: 2.3
+            });
+
+            await adapter.pollPVStatus();
+            expect(adapter.setStateChangedAsync.callCount).to.equal(1);
+            expect(adapter.setStateChangedAsync.calledWith('power.pvCurrent', { val: 2.3, ack: true })).to.be.true;
+        });
     });
 
     describe('onReady - discovery path', () => {
@@ -837,6 +922,69 @@ describe('MarstekVenusAdapter', function() {
             await adapter.onStateChange('control.passivePower', { val: 300, ack: false });
 
             expect(adapter.sendRequest.called).to.be.false;
+        });
+
+        it('updates Manual mode settings when manual control changes', async () => {
+            adapter.getStateAsync = sandbox.stub();
+            adapter.getStateAsync.withArgs('control.mode').resolves({ val: 'Manual' });
+            adapter.getStateAsync.withArgs('control.manualTimeNum').resolves({ val: 2 });
+            adapter.getStateAsync.withArgs('control.manualStartTime').resolves({ val: '06:00' });
+            adapter.getStateAsync.withArgs('control.manualEndTime').resolves({ val: '18:00' });
+            adapter.getStateAsync.withArgs('control.manualWeekdays').resolves({ val: 65 });
+            adapter.getStateAsync.withArgs('control.manualPower').resolves({ val: 2000 });
+            adapter.getStateAsync.withArgs('control.manualEnable').resolves({ val: false });
+
+            await adapter.onStateChange('control.manualPower', { val: 1500, ack: false });
+
+            expect(adapter.sendRequest.calledWith('ES.SetMode', sinon.match({
+                id: 0,
+                config: sinon.match({
+                    mode: 'Manual',
+                    manual_cfg: sinon.match({
+                        time_num: 2,
+                        start_time: '06:00',
+                        end_time: '18:00',
+                        week_set: 65,
+                        power: 2000,
+                        enable: 0
+                    })
+                })
+            }))).to.be.true;
+        });
+
+        it('does not update Manual settings when not in Manual mode', async () => {
+            adapter.getStateAsync = sandbox.stub();
+            adapter.getStateAsync.withArgs('control.mode').resolves({ val: 'Auto' });
+
+            await adapter.onStateChange('control.manualPower', { val: 1500, ack: false });
+
+            expect(adapter.sendRequest.called).to.be.false;
+        });
+
+        it('handles missing manual control states with defaults', async () => {
+            adapter.getStateAsync = sandbox.stub();
+            adapter.getStateAsync.withArgs('control.mode').resolves({ val: 'Manual' });
+            adapter.getStateAsync.withArgs('control.manualTimeNum').resolves(null);
+            adapter.getStateAsync.withArgs('control.manualStartTime').resolves(null);
+            adapter.getStateAsync.withArgs('control.manualEndTime').resolves(null);
+            adapter.getStateAsync.withArgs('control.manualWeekdays').resolves(null);
+            adapter.getStateAsync.withArgs('control.manualPower').resolves(null);
+            adapter.getStateAsync.withArgs('control.manualEnable').resolves(null);
+
+            await adapter.onStateChange('control.manualTimeNum', { val: 1, ack: false });
+
+            expect(adapter.sendRequest.calledWith('ES.SetMode', sinon.match({
+                config: sinon.match({
+                    manual_cfg: sinon.match({
+                        time_num: 0,
+                        start_time: '00:00',
+                        end_time: '23:59',
+                        week_set: 127,
+                        power: 100,
+                        enable: 0
+                    })
+                })
+            }))).to.be.true;
         });
     });
 

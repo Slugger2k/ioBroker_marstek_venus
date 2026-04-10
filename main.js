@@ -13,6 +13,7 @@ class MarstekVenusAdapter extends utils.Adapter {
         this.socket = null;
         this.requestId = 1;
         this.pendingRequests = new Map();
+        this.pendingRequestsByMethod = new Map();
         this.pollInterval = null;
         this.slowPollInterval = null;
         this.fastPollInterval = null;
@@ -56,53 +57,73 @@ class MarstekVenusAdapter extends utils.Adapter {
     }
 
     async sendRequest(method, params = {}) {
-        return new Promise((resolve, reject) => {
+        const targetIP = this.discoveredIP || this.config.ipAddress;
+
+        if (!targetIP) {
+            this.log.error(`sendRequest ${method}: No target IP configured`);
+            throw new Error(`No target IP configured`);
+        }
+
+        if (this.pendingRequestsByMethod && this.pendingRequestsByMethod.has(method)) {
+            this.log.debug(`Request ${method} already pending, reusing existing promise`);
+            return this.pendingRequestsByMethod.get(method);
+        }
+
+        const maxRetries = 3;
+        this.pendingRequestsByMethod = this.pendingRequestsByMethod || new Map();
+
+        const promise = new Promise((resolve, reject) => {
             const id = this.requestId++;
-            const targetIP = this.discoveredIP || this.config.ipAddress;
-
-            if (!targetIP) {
-                this.log.error(`sendRequest ${method}: No target IP configured`);
-                reject(new Error(`No target IP configured`));
-                return;
-            }
-
             const request = { id, method, params };
             const message = Buffer.from(JSON.stringify(request));
+            let retryCount = 0;
 
-            const timeoutHandle = () => {
-                const pending = this.pendingRequests.get(id);
-                if (pending) {
-                    clearTimeout(pending.timeout);
-                    pending.reject(new Error(`Request ${method} timed out`));
-                    this.pendingRequests.delete(id);
-                }
-                this.log.warn(`sendRequest ${method} to ${targetIP}:${this.config.udpPort} timed out`);
+            const sendOnce = () => {
+                const timeout = setTimeout(() => {
+                    const pending = this.pendingRequests.get(id);
+                    if (!pending) return;
+
+                    retryCount++;
+                    if (retryCount < maxRetries) {
+                        this.log.debug(`Retry ${retryCount}/${maxRetries} for ${method}`);
+                        sendOnce();
+                    } else {
+                        this.pendingRequests.delete(id);
+                        this.pendingRequestsByMethod.delete(method);
+                        this.log.warn(`sendRequest ${method} failed after ${maxRetries} attempts`);
+                        reject(new Error(`Request ${method} timed out after ${maxRetries} attempts`));
+                    }
+                }, 20000);
+
+                this.pendingRequests.set(id, { resolve, reject, timeout, method });
+
+                this.log.debug(`Sending ${method} to ${targetIP}:${this.config.udpPort} (attempt ${retryCount + 1}/${maxRetries})`);
+                this.socket.send(message, 0, message.length, this.config.udpPort, targetIP, (err) => {
+                    if (err) {
+                        clearTimeout(timeout);
+                        this.pendingRequests.delete(id);
+                        this.pendingRequestsByMethod.delete(method);
+                        this.log.error(`sendRequest ${method} to ${targetIP} send error: ${err.message}`);
+                        reject(err);
+                    } else {
+                        setTimeout(() => {
+                            if (this.pendingRequests.has(id)) {
+                                this.socket.send(message, 0, message.length, this.config.udpPort, '255.255.255.255', (broadcastErr) => {
+                                    if (broadcastErr) {
+                                        this.log.debug(`Broadcast retry for ${method} failed: ${broadcastErr.message}`);
+                                    }
+                                });
+                            }
+                        }, 1000);
+                    }
+                });
             };
 
-            const timeout = setTimeout(timeoutHandle, 20000);
-
-            this.pendingRequests.set(id, { resolve, reject, timeout });
-
-            this.log.debug(`Sending ${method} to ${targetIP}:${this.config.udpPort}`);
-            this.socket.send(message, 0, message.length, this.config.udpPort, targetIP, (err) => {
-                if (err) {
-                    clearTimeout(timeout);
-                    this.pendingRequests.delete(id);
-                    this.log.error(`sendRequest ${method} to ${targetIP} send error: ${err.message}`);
-                    reject(err);
-                } else {
-                    setTimeout(() => {
-                        if (this.pendingRequests.has(id)) {
-                            this.socket.send(message, 0, message.length, this.config.udpPort, '255.255.255.255', (broadcastErr) => {
-                                if (broadcastErr) {
-                                    this.log.debug(`Broadcast retry for ${method} failed: ${broadcastErr.message}`);
-                                }
-                            });
-                        }
-                    }, 1000);
-                }
-            });
+            sendOnce();
         });
+
+        this.pendingRequestsByMethod.set(method, promise);
+        return promise;
     }
 
     handleResponse(msgBuffer, rinfo) {
@@ -114,6 +135,9 @@ class MarstekVenusAdapter extends utils.Adapter {
                 const pending = this.pendingRequests.get(response.id);
                 clearTimeout(pending.timeout);
                 this.pendingRequests.delete(response.id);
+                if (pending.method) {
+                    this.pendingRequestsByMethod?.delete(pending.method);
+                }
 
                 if (response.error) {
                     pending.reject(new Error(`API Error ${response.error.code}: ${response.error.message}`));
