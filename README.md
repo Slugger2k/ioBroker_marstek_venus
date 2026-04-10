@@ -37,6 +37,8 @@ The ioBroker.marstek-venus adapter provides full integration with Marstek Venus 
 | **udpPort** | UDP port for communication | 30000 |
 | **pollInterval** | Normal poll interval for all status values (ms) | 10000 |
 | **fastPollInterval** | Fast poll interval for power values (ms) | 1000 |
+| **requestTimeout** | Request timeout before retry (ms) | 5000 |
+| **maxRetries** | Max retry attempts per request | 1 |
 | **autoDiscovery** | Enable automatic device discovery | true |
 
 ## States Documentation
@@ -145,7 +147,8 @@ The adapter implements 100% of the official Marstek Open API Revision 1.0:
 ### Polling Issues
 - Adjust `fastPollInterval` for power value update frequency (default 1000ms)
 - Adjust `pollInterval` for normal status update frequency (default 10000ms)
-- If device becomes unresponsive, increase intervals to reduce network load
+- Adjust `requestTimeout` if device needs more time to respond (default 5000ms)
+- Increase `maxRetries` for unreliable network connections
 - Slow poll runs every 10 minutes for device info and network status
 
 ### State Updates Not Working

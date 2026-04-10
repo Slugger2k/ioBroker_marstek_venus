@@ -64,13 +64,15 @@ class MarstekVenusAdapter extends utils.Adapter {
             throw new Error(`No target IP configured`);
         }
 
-        if (this.pendingRequestsByMethod && this.pendingRequestsByMethod.has(method)) {
+        this.pendingRequestsByMethod = this.pendingRequestsByMethod || new Map();
+
+        if (this.pendingRequestsByMethod.has(method)) {
             this.log.debug(`Request ${method} already pending, reusing existing promise`);
             return this.pendingRequestsByMethod.get(method);
         }
 
-        const maxRetries = 3;
-        this.pendingRequestsByMethod = this.pendingRequestsByMethod || new Map();
+        const maxRetries = this.config.maxRetries || 1;
+        const timeoutMs = this.config.requestTimeout || 5000;
 
         const promise = new Promise((resolve, reject) => {
             const id = this.requestId++;
@@ -93,7 +95,7 @@ class MarstekVenusAdapter extends utils.Adapter {
                         this.log.warn(`sendRequest ${method} failed after ${maxRetries} attempts`);
                         reject(new Error(`Request ${method} timed out after ${maxRetries} attempts`));
                     }
-                }, 20000);
+                }, timeoutMs);
 
                 this.pendingRequests.set(id, { resolve, reject, timeout, method });
 

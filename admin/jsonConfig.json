@@ -36,6 +36,24 @@
       "help": "fastPollInterval_help"
     },
     {
+      "type": "number",
+      "name": "requestTimeout",
+      "label": "Request timeout (ms)",
+      "min": 2000,
+      "max": 60000,
+      "default": 5000,
+      "help": "requestTimeout_help"
+    },
+    {
+      "type": "number",
+      "name": "maxRetries",
+      "label": "Max retries per request",
+      "min": 0,
+      "max": 5,
+      "default": 1,
+      "help": "maxRetries_help"
+    },
+    {
       "type": "checkbox",
       "name": "autoDiscovery",
       "label": "Auto discover devices",

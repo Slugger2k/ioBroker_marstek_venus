@@ -39,6 +39,22 @@ systemDictionary = {
         "en": "How often to query power values (pv, grid, battery, load). Lower values = faster updates for power data",
         "de": "Wie oft Leistungswerte abgefragt werden (pv, grid, battery, load). Niedrigere Werte = schnellere Updates für Leistungsdaten"
     },
+    "requestTimeout": {
+        "en": "Request timeout (ms)",
+        "de": "Anfrage-Timeout (ms)"
+    },
+    "requestTimeout_help": {
+        "en": "How long to wait for a response before retrying (higher for slow devices)",
+        "de": "Wie lange auf eine Antwort gewartet wird, bevor erneut versucht wird (höher für langsame Geräte)"
+    },
+    "maxRetries": {
+        "en": "Max retries per request",
+        "de": "Max. Wiederholungen pro Anfrage"
+    },
+    "maxRetries_help": {
+        "en": "Number of retry attempts if a request times out (0 = no retries)",
+        "de": "Anzahl der Wiederholungsversuche bei Timeout (0 = keine Wiederholungen)"
+    },
     "autoDiscovery_help": {
         "en": "Enable automatic device discovery on the local network (recommended for first-time setup)",
         "de": "Automatische Geräteerkennung im lokalen Netzwerk aktivieren (empfohlen für die Ersteinrichtung)"

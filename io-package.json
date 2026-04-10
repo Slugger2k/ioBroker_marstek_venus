@@ -59,6 +59,8 @@
     "udpPort": 30000,
     "pollInterval": 10000,
     "fastPollInterval": 1000,
+    "requestTimeout": 5000,
+    "maxRetries": 1,
     "autoDiscovery": true
   },
   "instanceObjects": [

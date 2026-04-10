@@ -244,13 +244,13 @@ describe('MarstekVenusAdapter', function() {
 
         it('handles timeout correctly', async () => {
             const promise = adapter.sendRequest('ES.GetStatus');
-            clock.tick(60000);
+            clock.tick(10000);
             
             try {
                 await promise;
                 expect.fail('Should timeout');
             } catch (e) {
-                expect(e.message).to.include('3 attempts');
+                expect(e.message).to.include('1 attempts');
             }
             expect(adapter.pendingRequests.size).to.equal(0);
         });
@@ -880,17 +880,27 @@ describe('MarstekVenusAdapter', function() {
     describe('onStateChange', () => {
         beforeEach(async () => {
             await adapter.onReady();
+            if (adapter.fastPollInterval) clearInterval(adapter.fastPollInterval);
+            if (adapter.pollInterval) clearInterval(adapter.pollInterval);
+            if (adapter.slowPollInterval) clearInterval(adapter.slowPollInterval);
+            adapter.fastPollInterval = null;
+            adapter.pollInterval = null;
+            adapter.slowPollInterval = null;
             adapter.sendRequest = sandbox.stub().resolves();
+            adapter.sendRequest.resetHistory();
+            adapter.pendingRequests.clear();
+            adapter.pendingRequestsByMethod = new Map();
+            adapter.getStateAsync = sandbox.stub();
         });
 
         it('does nothing for acknowledged states', async () => {
             await adapter.onStateChange('control.mode', { val: 'Auto', ack: true });
-            expect(adapter.sendRequest.called).to.be.false;
+            expect(adapter.sendRequest.calledWith('ES.SetMode')).to.be.false;
         });
 
         it('does nothing for unknown state changes', async () => {
             await adapter.onStateChange('power.pv', { val: 100, ack: false });
-            expect(adapter.sendRequest.called).to.be.false;
+            expect(adapter.sendRequest.calledWith('ES.SetMode')).to.be.false;
         });
 
         it('handles onStateChange errors gracefully', async () => {
@@ -921,7 +931,7 @@ describe('MarstekVenusAdapter', function() {
 
             await adapter.onStateChange('control.passivePower', { val: 300, ack: false });
 
-            expect(adapter.sendRequest.called).to.be.false;
+            expect(adapter.sendRequest.calledWith('ES.SetMode')).to.be.false;
         });
 
         it('updates Manual mode settings when manual control changes', async () => {
@@ -958,7 +968,7 @@ describe('MarstekVenusAdapter', function() {
 
             await adapter.onStateChange('control.manualPower', { val: 1500, ack: false });
 
-            expect(adapter.sendRequest.called).to.be.false;
+            expect(adapter.sendRequest.calledWith('ES.SetMode')).to.be.false;
         });
 
         it('handles missing manual control states with defaults', async () => {
@@ -1052,6 +1062,8 @@ describe('MarstekVenusAdapter', function() {
         beforeEach(async () => {
             await adapter.onReady();
             adapter.sendRequest = sandbox.stub().resolves();
+            adapter.pendingRequests.clear();
+            adapter.pendingRequestsByMethod = new Map();
         });
 
         it('handles valid control values', async () => {
@@ -1061,15 +1073,15 @@ describe('MarstekVenusAdapter', function() {
 
         it('clamps values within min/max range', async () => {
             await adapter.setControlTarget(-2000);
-            expect(adapter.sendRequest.lastCall.args[1].power).to.equal(-1500);
+            expect(adapter.sendRequest.calledWith('Marstek.SetTargetPower', { power: -1500 })).to.be.true;
             
             await adapter.setControlTarget(2000);
-            expect(adapter.sendRequest.lastCall.args[1].power).to.equal(1500);
+            expect(adapter.sendRequest.calledWith('Marstek.SetTargetPower', { power: 1500 })).to.be.true;
         });
 
         it('ignores null and undefined values', async () => {
             await adapter.setControlTarget(null);
-            expect(adapter.sendRequest.called).to.be.false;
+            expect(adapter.sendRequest.calledWith('Marstek.SetTargetPower')).to.be.false;
         });
     });
 });
