@@ -44,16 +44,16 @@ class MarstekVenusAdapter extends utils.Adapter {
             this.socket.setBroadcast(true);
             const address = this.socket.address();
             this.log.debug(`UDP socket bound successfully to ${address.address}:${address.port}`);
-        });
 
-        if (this.config.autoDiscovery && !this.config.ipAddress) {
-            await this.discoverDevices();
-        } else if (this.config.ipAddress) {
-            this.log.info(`Using configured device: ${this.config.ipAddress}:${this.config.udpPort}`);
-            this.startPolling();
-        } else {
-            this.log.warn('No device configured and auto-discovery disabled');
-        }
+            if (this.config.autoDiscovery && !this.config.ipAddress) {
+                this.discoverDevices().catch(err => this.log.error(`Discovery failed: ${err.message}`));
+            } else if (this.config.ipAddress) {
+                this.log.info(`Using configured device: ${this.config.ipAddress}:${this.config.udpPort}`);
+                this.startPolling();
+            } else {
+                this.log.warn('No device configured and auto-discovery disabled');
+            }
+        });
     }
 
     async sendRequest(method, params = {}) {
@@ -197,6 +197,13 @@ class MarstekVenusAdapter extends utils.Adapter {
                 success: !!this.discoveredIP,
                 ipAddress: this.discoveredIP || null
             }, obj.callback);
+        } else if (obj.command === 'setSettings') {
+            const settings = obj.values;
+            this.config.autoDiscovery = settings.autoDiscovery;
+            this.config.ipAddress = settings.ipAddress;
+            this.config.udpPort = settings.udpPort;
+            this.config.pollInterval = settings.pollInterval;
+            this.log.info("Settings updated via UI");
         }
     }
 
