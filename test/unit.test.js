@@ -299,6 +299,7 @@ describe('MarstekVenusAdapter', function() {
             adapter._requestQueue.queue = [];
             adapter._requestQueue._busy = false;
             adapter.config.maxRetries = 3;
+            adapter.config.requestTimeout = 5000;
             mockSocket.send.resetHistory();
             const promise = adapter.sendRequest('ES.GetStatus');
             clock.tick(1);

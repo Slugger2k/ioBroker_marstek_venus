@@ -52,7 +52,10 @@
     "adminUI": {"config": "json"},
     "supportedMessages": [
       "sendTo"
-    ]
+    ],
+    "readme": "https://github.com/ioBroker/ioBroker.marstek-venus#readme",
+    "bugs": "https://github.com/ioBroker/ioBroker.marstek-venus/issues",
+    "changelog": "https://github.com/ioBroker/ioBroker.marstek-venus/blob/master/CHANGELOG.md"
   },
   "native": {
     "ipAddress": "",
@@ -115,6 +118,15 @@
       "common": {
         "name": "Network",
         "role": "info.network"
+      },
+      "native": {}
+    },
+    {
+      "_id": "energymeter",
+      "type": "channel",
+      "common": {
+        "name": "Energy Meter",
+        "role": "meter"
       },
       "native": {}
     }

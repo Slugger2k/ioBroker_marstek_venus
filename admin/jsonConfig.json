@@ -35,11 +35,37 @@
       "sm": 6,
       "newLine": true
     },
+    "fastPollInterval": {
+      "type": "number",
+      "label": "Fast poll interval (ms)",
+      "min": 100,
+      "max": 10000,
+      "default": 1000,
+      "sm": 6
+    },
+    "requestTimeout": {
+      "type": "number",
+      "label": "Request timeout (ms)",
+      "min": 1000,
+      "max": 30000,
+      "default": 5000,
+      "sm": 6,
+      "newLine": true
+    },
+    "maxRetries": {
+      "type": "number",
+      "label": "Max retries",
+      "min": 0,
+      "max": 5,
+      "default": 1,
+      "sm": 6
+    },
     "autoDiscovery": {
       "type": "checkbox",
       "label": "Auto discover devices on network",
       "default": true,
-      "sm": 6
+      "sm": 6,
+      "newLine": true
     }
   }
 }

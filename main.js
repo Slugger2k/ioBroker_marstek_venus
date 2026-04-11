@@ -47,7 +47,7 @@ class MarstekVenusAdapter extends utils.Adapter {
             const address = this.socket.address();
             this.log.debug(`UDP socket bound successfully to ${address.address}:${address.port}`);
 
-            this._requestQueue = new RateLimitQueue({ intervalMs: 1000 });
+            this._requestQueue = new RateLimitQueue({ intervalMs: 250 });
 
             if (this.config.autoDiscovery && !this.config.ipAddress) {
                 this.discoverDevices().catch(err => this.log.error(`Discovery failed: ${err.message}`));
@@ -81,7 +81,7 @@ class MarstekVenusAdapter extends utils.Adapter {
         }
 
         const maxRetries = this.config.maxRetries || 1;
-        const timeoutMs = this.config.requestTimeout || 5000;
+        const timeoutMs = this.config.requestTimeout || 2000;
         const id = this.requestId++;
         const request = { id, method, params };
         const message = Buffer.from(JSON.stringify(request));
