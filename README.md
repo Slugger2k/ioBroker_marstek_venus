@@ -196,6 +196,14 @@ SOFTWARE.
 ### **WORK IN PROGRESS**
 - Added Venus A device support to adapter descriptions
 - Updated all documentation to include Venus A in supported devices list
+- Fix: validate and sanitize all `setSettings` input values (type coercion, numeric range clamping, IP whitespace trim) to prevent security issues
+- Fix: use `indicator.connected` role for `info.connection` state instead of `indicator.reachable` per ioBroker spec
+- Fix: use specific `info.model`, `info.firmware`, `info.mac` roles for device info states instead of generic `text`
+- Fix: use `info.ip` role for `network.ip` state instead of generic `text`
+- Fix: pass adapter instance to `RateLimitQueue` so internal timers use `adapter.setTimeout`/`clearTimeout` instead of raw global timers (prevents timer leaks in compact mode)
+- Fix: correct `authors` field in `io-package.json` from `ioBroker Community` to `Slugger2k`
+- Fix: remove duplicate `network` and `energymeter` channel creation from `initStates()` that was already defined in `instanceObjects`
+- Fix: log unknown `onMessage` commands at debug level instead of silently ignoring them
 
 ### 0.1.12 (2026-04-12)
 - new release
