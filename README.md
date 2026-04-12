@@ -187,7 +187,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Changelog
-### 0.1.11 (2026-04-12)
+### **WORK IN PROGRESS**
+- Fixed incorrect retry counter in error messages: now correctly shows actual number of attempts instead of configured maxRetries
 - Updated default configuration values
   - maxRetries: 3
   - requestTimeout: 3000ms

@@ -146,8 +146,8 @@ class MarstekVenusAdapter extends utils.Adapter {
 							} else {
 								this._pendingRequests.delete(id);
 								this._pendingRequestsByMethod.delete(method);
-								this.log.warn(`sendRequest ${method} failed after ${maxRetries} attempts`);
-								reject(new Error(`Request ${method} timed out after ${maxRetries} attempts`));
+								this.log.warn(`sendRequest ${method} failed after ${retryCount} attempts`);
+								reject(new Error(`Request ${method} timed out after ${retryCount} attempts`));
 							}
 						}, timeoutMs);
 
