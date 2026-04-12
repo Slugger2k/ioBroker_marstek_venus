@@ -47,7 +47,7 @@
   "scripts": {
     "test": "npm run test:package && npm run test:unit",
     "test:package": "mocha test/package.test.js --exit",
-    "test:unit": "mocha 'test/*.test.js' --exit",
+    "test:unit": "mocha \"test/*.test.js\" --exit",
     "test:integration": "mocha test/integration.test.js --exit 2>/dev/null || true",
     "coverage": "nyc npm run test",
     "coverage:report": "nyc report --reporter=text --reporter=lcov --reporter=html",
