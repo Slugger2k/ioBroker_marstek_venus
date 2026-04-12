@@ -8,7 +8,7 @@ The ioBroker.marstek-venus adapter provides full integration with Marstek Venus 
 - ✅ **3-tier polling system** for optimized updates:
   - **Fast poll** (default 1s): Power values (pv, grid, battery, load)
   - **Normal poll** (default 10s): All status values
-  - **Slow poll** (10min): Device info and network status
+   - **Slow poll** (10min): Network status
 - ✅ **Request deduplication** - prevents overlapping requests
 - ✅ **Automatic retry** - 1 retry with 2000ms timeout per request
 - ✅ **Complete state coverage** (battery, power, energy, network, device info)
@@ -149,7 +149,7 @@ The adapter implements 100% of the official Marstek Open API Revision 1.0:
 - Adjust `pollInterval` for normal status update frequency (default 10000ms)
 - Adjust `requestTimeout` if device needs more time to respond (default 2000ms)
 - Increase `maxRetries` for unreliable network connections
-- Slow poll runs every 10 minutes for device info and network status
+- Slow poll runs every 10 minutes for network status
 
 ### State Updates Not Working
 - Verify control states are writable (some are read-only)
@@ -157,6 +157,10 @@ The adapter implements 100% of the official Marstek Open API Revision 1.0:
 - Ensure manual mode settings are valid
 
 ## Changelog
+
+### 0.1.2
+- Removed invalid ES.GetInfo call which was causing Method not found errors
+- Device information is now obtained exclusively during discovery
 
 ### 0.1.1
 - Added 3-tier polling system (fast/normal/slow)
