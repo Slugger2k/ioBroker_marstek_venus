@@ -45,45 +45,6 @@
         "pl": "Naprawiono problemy z walidacją repozytorium, zaktualizowano konwencje nazewnictwa adaptera",
         "uk": "Виправлено проблеми перевірки репозиторію, оновлено угоди про найменування адаптерів",
         "zh-cn": "修复了存储库验证问题，更新了适配器命名规范"
-      },
-      "0.1.2": {
-        "en": "Removed invalid ES.GetInfo call, device info obtained via discovery only",
-        "de": "Ungültiger ES.GetInfo Aufruf entfernt, Geräteinformationen werden nur über Discovery abgerufen",
-        "ru": "Удален недопустимый вызов ES.GetInfo, информация об устройстве получается только через обнаружение",
-        "pt": "Removida chamada ES.GetInfo inválida, informações do dispositivo obtidas apenas via descoberta",
-        "nl": "Ongeldige ES.GetInfo-aanroep verwijderd, apparaatinformatie alleen verkregen via discovery",
-        "fr": "Supprimé l'appel ES.GetInfo invalide, informations sur l'appareil obtenues uniquement via la découverte",
-        "it": "Rimossa chiamata ES.GetInfo non valida, informazioni sul dispositivo ottenute solo tramite discovery",
-        "es": "Eliminada llamada ES.GetInfo no válida, información del dispositivo obtenida solo a través de discovery",
-        "pl": "Usunięto nieprawidłowe wywołanie ES.GetInfo, informacje o urządzeniu uzyskiwane tylko poprzez odnajdywanie",
-        "uk": "Видалено недійсний виклик ES.GetInfo, інформація про пристрій отримується лише через виявлення",
-        "zh-cn": "移除了无效的 ES.GetInfo 调用，设备信息仅通过发现获取"
-      },
-      "0.1.1": {
-        "en": "Added 3-tier polling system, request deduplication, automatic retry, optimized power updates",
-        "de": "3-stufiges Polling-System hinzugefügt, Anfrage-Deduplizierung, automatische Wiederholung, optimierte Leistungsaktualisierungen",
-        "ru": "Добавлена 3-уровневая система опроса, дедупликация запросов, автоматический повтор, оптимизированные обновления мощности",
-        "pt": "Adicionado sistema de polling de 3 níveis, desduplicação de solicitações, repetição automática, atualizações de energia otimizadas",
-        "nl": "3-tier polling systeem toegevoegd, aanvraagdeduplicatie, automatische herhaal, geoptimaliseerde vermogensupdates",
-        "fr": "Ajouté un système de polling à 3 niveaux, déduplication des requêtes, retry automatique, mises à jour de puissance optimisées",
-        "it": "Aggiunto sistema di polling a 3 livelli, deduplicazione delle richieste, retry automatico, aggiornamenti di potenza ottimizzati",
-        "es": "Añadido sistema de polling de 3 niveles, deduplicación de solicitudes, reintento automático, actualizaciones de potencia optimizadas",
-        "pl": "Dodano 3-poziomowy system odpytywania, deduplikację żądań, automatyczne ponawianie, zoptymalizowane aktualizacje mocy",
-        "uk": "Додано 3-рівневу систему опитування, дедуплікацію запитів, автоматичне повторювання, оптимізовані оновлення потужності",
-        "zh-cn": "添加了3层轮询系统，请求去重，自动重试，优化了功率更新"
-      },
-      "0.1.0": {
-        "en": "Initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Первоначальный выпуск",
-        "pt": "Versão inicial",
-        "nl": "Eerste release",
-        "fr": "Version initiale",
-        "it": "Release iniziale",
-        "es": "Lanzamiento inicial",
-        "pl": "Pierwsze wydanie",
-        "uk": "Початковий випуск",
-        "zh-cn": "初始版本"
       }
     },
     "icon": "marstek-venus.png",
