@@ -197,7 +197,8 @@ SOFTWARE.
 - Added Venus A device support to adapter descriptions
 - Updated all documentation to include Venus A in supported devices list
 
-
+### 0.1.12 (2026-04-12)
+- new release
 
 > Older changelog entries are available in [CHANGELOG_OLD.md](./CHANGELOG_OLD.md)
 
