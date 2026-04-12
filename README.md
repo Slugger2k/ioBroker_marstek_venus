@@ -186,9 +186,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Changelog 
-
-### **WORK IN PROGRESS**
+## Changelog
 
 ## 0.1.7 (2026-04-12)
 - fix adapter checker issues
@@ -200,6 +198,8 @@ SOFTWARE.
 
 ## 0.1.5 (2026-04-11)
 - Initial release with full Marstek Venus Open API support
+
+### **WORK IN PROGRESS**
 
 ## Support
 
