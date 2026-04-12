@@ -56,7 +56,8 @@
     "coverage": "nyc npm run test",
     "coverage:report": "nyc report --reporter=text --reporter=lcov --reporter=html",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "translate": "translate-adapter"
   },
   "nyc": {
     "all": true,
