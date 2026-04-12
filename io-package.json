@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "marstek-venus",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "titleLang": {
       "en": "Marstek Venus Energy Storage",
       "de": "Marstek Venus Energiespeicher",
@@ -29,6 +29,19 @@
       "zh-cn": "Marstek Venus C/D/E 储能设备适配器"
     },
     "news": {
+      "0.1.12": {
+        "en": "new release",
+        "de": "neue veröffentlichung",
+        "ru": "новый выпуск",
+        "pt": "nova versão",
+        "nl": "nieuwe release",
+        "fr": "nouvelle version",
+        "it": "nuova release",
+        "es": "nueva versión",
+        "pl": "nowe wydanie",
+        "uk": "новий реліз",
+        "zh-cn": "新发行"
+      },
       "0.1.11": {
         "en": "- Fixed incorrect retry counter in error messages: now correctly shows actual number of attempts instead of configured maxRetries\n- Updated default configuration values\n  - maxRetries: 3\n  - requestTimeout: 3000ms\n  - pollInterval: 20000ms\n  - fastPollInterval: 5000ms\n- Added 7 day cooldown to dependabot configuration\n- Split changelog into README.md (current) and CHANGELOG_OLD.md (historical entries)\n- Updated all documentation with new default values\n\n> Older changelog entries are available in [CHANGELOG_OLD.md](./CHANGELOG_OLD.md)",
         "de": "- Behobene fehlerhafte Retry-Zähler in Fehlermeldungen: jetzt korrekt zeigt die tatsächliche Anzahl der Versuche statt konfiguriert maxRetries\n- Aktualisierte Standardkonfigurationswerte\n- maxRetries: 3\n- AnfrageTimeout: 3000ms\n- UmfrageInterval: 20000m\n- FastPollInterval: 5000m\n- Hinzugefügt 7-Tage-Abklingzeit zur abhängigabot-Konfiguration\n- Teilen Sie Changelog in README.md (current) und CHANGELOG OLD.md (historische Einträge)\n- Aktualisiert alle Dokumentationen mit neuen Standardwerten\n\n> ältere Changelog-Einträge sind verfügbar in [CHANGELOG OLD.md](./CHANGELOG OLD.md)",
