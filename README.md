@@ -158,6 +158,8 @@ The adapter implements 100% of the official Marstek Open API Revision 1.0:
 
 ## Changelog
 
+### **WORK IN PROGRESS**
+
 ### 0.1.6
 - Removed invalid ES.GetInfo call which was causing Method not found errors
 - Device information is now obtained exclusively during discovery
