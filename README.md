@@ -158,21 +158,7 @@ The adapter implements 100% of the official Marstek Open API Revision 1.0:
 
 ## Changelog
 
-### 0.1.2
-- Removed invalid ES.GetInfo call which was causing Method not found errors
-- Device information is now obtained exclusively during discovery
-
-### 0.1.1
-- Added 3-tier polling system (fast/normal/slow)
-- Added request deduplication to prevent overlapping requests
-- Added automatic retry (1 attempt with 2000ms timeout per request)
-- Optimized power value updates with dedicated fast poll
-
-### 0.1.0
-- Initial release
-- Full API implementation
-- Auto discovery support
-- All operating modes implemented
+### **WORK IN PROGRESS**
 
 ## License
 
