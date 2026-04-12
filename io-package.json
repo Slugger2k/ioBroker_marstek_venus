@@ -16,17 +16,17 @@
       "zh-cn": "Marstek Venus 储能"
     },
     "desc": {
-      "en": "Adapter for Marstek Venus C/D/E energy storage devices",
-      "de": "Adapter für Marstek Venus C/D/E Energiespeichergeräte",
-      "ru": "Адаптер для устройств накопления энергии Marstek Venus C/D/E",
-      "pt": "Adaptador para dispositivos de armazenamento de energia Marstek Venus C/D/E",
-      "nl": "Adapter voor Marstek Venus C/D/E energieopslagapparaten",
-      "fr": "Adaptateur pour les dispositifs de stockage d'énergie Marstek Venus C/D/E",
-      "it": "Adapter per dispositivi di accumulo energetico Marstek Venus C/D/E",
-      "es": "Adaptador para dispositivos de almacenamiento de energía Marstek Venus C/D/E",
-      "pl": "Adapter do urządzeń magazynowania energii Marstek Venus C/D/E",
-      "uk": "Адаптер для пристроїв накопичення енергії Marstek Venus C/D/E",
-      "zh-cn": "Marstek Venus C/D/E 储能设备适配器"
+      "en": "Adapter for Marstek Venus A/C/D/E energy storage devices",
+      "de": "Adapter für Marstek Venus A/C/D/E Energiespeichergeräte",
+      "ru": "Адаптер для устройств накопления энергии Marstek Venus A/C/D/E",
+      "pt": "Adaptador para dispositivos de armazenamento de energia Marstek Venus A/C/D/E",
+      "nl": "Adapter voor Marstek Venus A/C/D/E energieopslagapparaten",
+      "fr": "Adaptateur pour les dispositifs de stockage d'énergie Marstek Venus A/C/D/E",
+      "it": "Adapter per dispositivi di accumulo energetico Marstek Venus A/C/D/E",
+      "es": "Adaptador para dispositivos de almacenamiento de energía Marstek Venus A/C/D/E",
+      "pl": "Adapter do urządzeń magazynowania energii Marstek Venus A/C/D/E",
+      "uk": "Адаптер для пристроїв накопичення енергії Marstek Venus A/C/D/E",
+      "zh-cn": "Marstek Venus A/C/D/E 储能设备适配器"
     },
     "news": {
       "0.1.12": {

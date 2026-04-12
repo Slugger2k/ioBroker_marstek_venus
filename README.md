@@ -7,6 +7,12 @@
 
 The ioBroker.marstek-venus adapter provides full integration with Marstek Venus series energy storage systems, implementing the official Open API for complete device control and monitoring.
 
+## Supported Devices
+- ✅ Venus A
+- ✅ Venus C
+- ✅ Venus D
+- ✅ Venus E
+
 ## Key Features
 
 - ✅ **Full device auto-discovery** on local network
@@ -188,6 +194,8 @@ SOFTWARE.
 
 ## Changelog
 ### **WORK IN PROGRESS**
+- Added Venus A device support to adapter descriptions
+- Updated all documentation to include Venus A in supported devices list
 
 
 
