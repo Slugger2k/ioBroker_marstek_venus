@@ -6,7 +6,8 @@ updates:
       interval: monthly
       time: "04:00"
       timezone: Europe/Berlin
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 15
+    cooldown: { default: 7 }
     versioning-strategy: increase
 
   - package-ecosystem: github-actions
@@ -15,4 +16,5 @@ updates:
       interval: monthly
       time: "04:00"
       timezone: Europe/Berlin
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 15
+    cooldown: { default: 7 }

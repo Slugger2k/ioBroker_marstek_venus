@@ -129,10 +129,10 @@
   "native": {
     "ipAddress": "",
     "udpPort": 30000,
-    "pollInterval": 10000,
-    "fastPollInterval": 1000,
-    "requestTimeout": 5000,
-    "maxRetries": 1,
+    "pollInterval": 20000,
+    "fastPollInterval": 5000,
+    "requestTimeout": 3000,
+    "maxRetries": 3,
     "autoDiscovery": true
   },
   "instanceObjects": [
