@@ -10,7 +10,7 @@ const mockSocket = {
 	on: sinon.stub(),
 	bind: sinon.stub().callsFake((port, cb) => typeof cb === "function" && cb(null)),
 	setBroadcast: sinon.stub(),
-	address: sinon.stub().returns({address: "0.0.0.0", port: 12345}),
+	address: sinon.stub().returns({ address: "0.0.0.0", port: 12345 }),
 	send: sinon.stub().callsFake((buf, offset, len, port, addr, cb) => {
 		if (typeof cb === "function") {
 			cb(null);
@@ -85,7 +85,7 @@ class MockAdapterBase {
 const mockAdapterCore = {
 	Adapter: MockAdapterBase,
 };
-require.cache[require.resolve("@iobroker/adapter-core")] = {exports: mockAdapterCore};
+require.cache[require.resolve("@iobroker/adapter-core")] = { exports: mockAdapterCore };
 
 // Now load the actual adapter - clear ALL caches including adapter-core
 const adapterCorePath = require.resolve("@iobroker/adapter-core");
@@ -221,15 +221,12 @@ describe("MarstekVenusAdapter", function () {
 		describe("onUnload()", () => {
 			it("cleans up all resources", done => {
 				adapter._socket = mockSocket;
-				adapter._normalPollTimer = setInterval(() => {
-				}, 1000);
-				adapter._slowPollTimer = setInterval(() => {
-				}, 1000);
+				adapter._normalPollTimer = setInterval(() => {}, 1000);
+				adapter._slowPollTimer = setInterval(() => {}, 1000);
 
-				const timeout = setTimeout(() => {
-				}, 1000);
+				const timeout = setTimeout(() => {}, 1000);
 				const rejectSpy = sandbox.stub();
-				adapter._pendingRequests.set(1, {timeout, reject: rejectSpy});
+				adapter._pendingRequests.set(1, { timeout, reject: rejectSpy });
 
 				adapter.onUnload(() => {
 					expect(mockSocket.close.calledOnce).to.be.true;
@@ -320,9 +317,9 @@ describe("MarstekVenusAdapter", function () {
 
 			const req = adapter._pendingRequests.values().next().value;
 			clearTimeout(req.timeout);
-			req.resolve({ok: true});
+			req.resolve({ ok: true });
 
-			expect(await promise).to.deep.equal({ok: true});
+			expect(await promise).to.deep.equal({ ok: true });
 		});
 
 		it("handles timeout correctly", async () => {
@@ -404,11 +401,11 @@ describe("MarstekVenusAdapter", function () {
 			clock.tick(1);
 			const reqId = adapter._requestId - 1;
 
-			adapter.handleResponse(Buffer.from(JSON.stringify({id: reqId, result: {soc: 98}})), {
+			adapter.handleResponse(Buffer.from(JSON.stringify({ id: reqId, result: { soc: 98 } })), {
 				address: "192.168.1.100",
 			});
 
-			expect(await promise).to.deep.equal({soc: 98});
+			expect(await promise).to.deep.equal({ soc: 98 });
 		});
 
 		it("rejects on error response", async () => {
@@ -419,7 +416,7 @@ describe("MarstekVenusAdapter", function () {
 			clock.tick(1);
 			const reqId = adapter._requestId - 1;
 
-			adapter.handleResponse(Buffer.from(JSON.stringify({id: reqId, error: {code: -1, message: "Error"}})), {
+			adapter.handleResponse(Buffer.from(JSON.stringify({ id: reqId, error: { code: -1, message: "Error" } })), {
 				address: "192.168.1.100",
 			});
 
@@ -435,8 +432,8 @@ describe("MarstekVenusAdapter", function () {
 			adapter.config.ipAddress = "";
 
 			adapter.handleResponse(
-				Buffer.from(JSON.stringify({result: {device: "Venus C", ip: "192.168.1.100"}})),
-				{address: "192.168.1.100"},
+				Buffer.from(JSON.stringify({ result: { device: "Venus C", ip: "192.168.1.100" } })),
+				{ address: "192.168.1.100" },
 			);
 
 			// Wait for discovery handler to complete
@@ -449,8 +446,8 @@ describe("MarstekVenusAdapter", function () {
 			adapter.startPolling = sandbox.stub();
 
 			adapter.handleResponse(
-				Buffer.from(JSON.stringify({result: {device: "Venus C", ip: "192.168.1.100"}})),
-				{address: "192.168.1.100"},
+				Buffer.from(JSON.stringify({ result: { device: "Venus C", ip: "192.168.1.100" } })),
+				{ address: "192.168.1.100" },
 			);
 
 			expect(adapter._discoveredIP).to.be.null;
@@ -460,7 +457,7 @@ describe("MarstekVenusAdapter", function () {
 		it("warns on discovery response without IP", () => {
 			adapter.config.ipAddress = "";
 
-			adapter.handleResponse(Buffer.from(JSON.stringify({result: {device: "Venus C"}})), {
+			adapter.handleResponse(Buffer.from(JSON.stringify({ result: { device: "Venus C" } })), {
 				address: "192.168.1.100",
 			});
 
@@ -468,7 +465,7 @@ describe("MarstekVenusAdapter", function () {
 		});
 
 		it("ignores unsolicited messages", () => {
-			adapter.handleResponse(Buffer.from(JSON.stringify({method: "SomeEvent", data: 123})), {
+			adapter.handleResponse(Buffer.from(JSON.stringify({ method: "SomeEvent", data: 123 })), {
 				address: "192.168.1.100",
 			});
 
@@ -476,7 +473,7 @@ describe("MarstekVenusAdapter", function () {
 		});
 
 		it("ignores invalid JSON", () => {
-			adapter.handleResponse(Buffer.from("invalid json"), {address: "192.168.1.100"});
+			adapter.handleResponse(Buffer.from("invalid json"), { address: "192.168.1.100" });
 			expect(adapter.log.debug.calledWithMatch(/Invalid response/)).to.be.true;
 		});
 	});
@@ -488,40 +485,40 @@ describe("MarstekVenusAdapter", function () {
 		});
 
 		it("handles Auto mode", async () => {
-			await adapter.onStateChange("control.mode", {val: "Auto", ack: false});
+			await adapter.onStateChange("control.mode", { val: "Auto", ack: false });
 			expect(
 				adapter.sendRequest.calledWith(
 					"ES.SetMode",
 					sinon.match({
-						config: {mode: "Auto", auto_cfg: {enable: 1}},
+						config: { mode: "Auto", auto_cfg: { enable: 1 } },
 					}),
 				),
 			).to.be.true;
 		});
 
 		it("handles AI mode", async () => {
-			await adapter.onStateChange("control.mode", {val: "AI", ack: false});
+			await adapter.onStateChange("control.mode", { val: "AI", ack: false });
 			expect(
 				adapter.sendRequest.calledWith(
 					"ES.SetMode",
 					sinon.match({
-						config: {mode: "AI", ai_cfg: {enable: 1}},
+						config: { mode: "AI", ai_cfg: { enable: 1 } },
 					}),
 				),
 			).to.be.true;
 		});
 
 		it("handles Passive mode", async () => {
-			adapter.getStateAsync.withArgs("control.passivePower").resolves({val: 500});
-			adapter.getStateAsync.withArgs("control.passiveDuration").resolves({val: 600});
+			adapter.getStateAsync.withArgs("control.passivePower").resolves({ val: 500 });
+			adapter.getStateAsync.withArgs("control.passiveDuration").resolves({ val: 600 });
 
-			await adapter.onStateChange("control.mode", {val: "Passive", ack: false});
+			await adapter.onStateChange("control.mode", { val: "Passive", ack: false });
 
 			expect(
 				adapter.sendRequest.calledWith(
 					"ES.SetMode",
 					sinon.match({
-						config: {mode: "Passive", passive_cfg: {power: 500, cd_time: 600}},
+						config: { mode: "Passive", passive_cfg: { power: 500, cd_time: 600 } },
 					}),
 				),
 			).to.be.true;
@@ -531,27 +528,27 @@ describe("MarstekVenusAdapter", function () {
 			adapter.getStateAsync.withArgs("control.passivePower").resolves(null);
 			adapter.getStateAsync.withArgs("control.passiveDuration").resolves(null);
 
-			await adapter.onStateChange("control.mode", {val: "Passive", ack: false});
+			await adapter.onStateChange("control.mode", { val: "Passive", ack: false });
 
 			expect(
 				adapter.sendRequest.calledWith(
 					"ES.SetMode",
 					sinon.match({
-						config: {mode: "Passive", passive_cfg: {power: 0, cd_time: 300}},
+						config: { mode: "Passive", passive_cfg: { power: 0, cd_time: 300 } },
 					}),
 				),
 			).to.be.true;
 		});
 
 		it("handles Manual mode", async () => {
-			adapter.getStateAsync.withArgs("control.manualTimeNum").resolves({val: 1});
-			adapter.getStateAsync.withArgs("control.manualStartTime").resolves({val: "08:00"});
-			adapter.getStateAsync.withArgs("control.manualEndTime").resolves({val: "20:00"});
-			adapter.getStateAsync.withArgs("control.manualWeekdays").resolves({val: 127});
-			adapter.getStateAsync.withArgs("control.manualPower").resolves({val: 1000});
-			adapter.getStateAsync.withArgs("control.manualEnable").resolves({val: true});
+			adapter.getStateAsync.withArgs("control.manualTimeNum").resolves({ val: 1 });
+			adapter.getStateAsync.withArgs("control.manualStartTime").resolves({ val: "08:00" });
+			adapter.getStateAsync.withArgs("control.manualEndTime").resolves({ val: "20:00" });
+			adapter.getStateAsync.withArgs("control.manualWeekdays").resolves({ val: 127 });
+			adapter.getStateAsync.withArgs("control.manualPower").resolves({ val: 1000 });
+			adapter.getStateAsync.withArgs("control.manualEnable").resolves({ val: true });
 
-			await adapter.onStateChange("control.mode", {val: "Manual", ack: false});
+			await adapter.onStateChange("control.mode", { val: "Manual", ack: false });
 
 			expect(adapter.sendRequest.calledWith("ES.SetMode", sinon.match.has("config"))).to.be.true;
 		});
@@ -564,7 +561,7 @@ describe("MarstekVenusAdapter", function () {
 			adapter.getStateAsync.withArgs("control.manualPower").resolves(null);
 			adapter.getStateAsync.withArgs("control.manualEnable").resolves(null);
 
-			await adapter.onStateChange("control.mode", {val: "Manual", ack: false});
+			await adapter.onStateChange("control.mode", { val: "Manual", ack: false });
 
 			expect(
 				adapter.sendRequest.calledWith(
@@ -602,7 +599,7 @@ describe("MarstekVenusAdapter", function () {
 			adapter.pollModeStatus = sandbox.stub().resolves();
 
 			await adapter.poll();
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: true, ack: true})).to.be.true;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: true, ack: true })).to.be.true;
 			expect(adapter._pollFailureCount).to.equal(0);
 		});
 
@@ -626,7 +623,7 @@ describe("MarstekVenusAdapter", function () {
 			expect(adapter._pollFailureCount).to.equal(2);
 			await adapter.poll();
 			expect(adapter._pollFailureCount).to.equal(3);
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: false, ack: true})).to.be.true;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: false, ack: true })).to.be.true;
 		});
 
 		it("handles pollWithRetry returning false", async () => {
@@ -647,7 +644,7 @@ describe("MarstekVenusAdapter", function () {
 			});
 
 			await adapter.poll();
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: false, ack: true})).to.be.false;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: false, ack: true })).to.be.false;
 			expect(adapter._pollFailureCount).to.equal(1);
 		});
 
@@ -663,15 +660,15 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.poll();
 			expect(adapter._pollFailureCount).to.equal(1);
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: false, ack: true})).to.be.false;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: false, ack: true })).to.be.false;
 
 			await adapter.poll();
 			expect(adapter._pollFailureCount).to.equal(2);
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: false, ack: true})).to.be.false;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: false, ack: true })).to.be.false;
 
 			await adapter.poll();
 			expect(adapter._pollFailureCount).to.equal(3);
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: false, ack: true})).to.be.true;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: false, ack: true })).to.be.true;
 		});
 
 		it("resets failure count on successful poll after failures", async () => {
@@ -704,7 +701,7 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.poll();
 			expect(adapter._pollFailureCount).to.equal(0);
-			expect(adapter.setStateAsync.calledWith("info.connection", {val: true, ack: true})).to.be.true;
+			expect(adapter.setStateAsync.calledWith("info.connection", { val: true, ack: true })).to.be.true;
 		});
 
 		it("skips overlapping polls", async () => {
@@ -789,7 +786,7 @@ describe("MarstekVenusAdapter", function () {
 			});
 
 			await adapter.pollESStatus();
-			expect(adapter.setStateChangedAsync.calledWith("power.pv", {val: 500, ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pv", { val: 500, ack: true })).to.be.true;
 		});
 
 		it("pollBatteryStatus updates states", async () => {
@@ -803,13 +800,13 @@ describe("MarstekVenusAdapter", function () {
 			});
 
 			await adapter.pollBatteryStatus();
-			expect(adapter.setStateChangedAsync.calledWith("battery.temperature", {val: 25, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("battery.capacity", {val: 5000, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("battery.ratedCapacity", {val: 10000, ack: true})).to.be
+			expect(adapter.setStateChangedAsync.calledWith("battery.temperature", { val: 25, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("battery.capacity", { val: 5000, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("battery.ratedCapacity", { val: 10000, ack: true })).to.be
 				.true;
-			expect(adapter.setStateChangedAsync.calledWith("battery.chargingAllowed", {val: true, ack: true})).to.be
+			expect(adapter.setStateChangedAsync.calledWith("battery.chargingAllowed", { val: true, ack: true })).to.be
 				.true;
-			expect(adapter.setStateChangedAsync.calledWith("battery.dischargingAllowed", {val: false, ack: true})).to
+			expect(adapter.setStateChangedAsync.calledWith("battery.dischargingAllowed", { val: false, ack: true })).to
 				.be.true;
 		});
 
@@ -821,7 +818,7 @@ describe("MarstekVenusAdapter", function () {
 			});
 
 			await adapter.pollWifiStatus();
-			expect(adapter.setStateChangedAsync.calledWith("network.ip", {val: "192.168.1.100", ack: true})).to.be
+			expect(adapter.setStateChangedAsync.calledWith("network.ip", { val: "192.168.1.100", ack: true })).to.be
 				.true;
 		});
 
@@ -849,11 +846,11 @@ describe("MarstekVenusAdapter", function () {
 			});
 
 			await adapter.pollEMStatus();
-			expect(adapter.setStateChangedAsync.calledWith("energymeter.ctState", {val: 1, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerA", {val: 100, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerB", {val: 200, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerC", {val: 300, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerTotal", {val: 600, ack: true})).to.be
+			expect(adapter.setStateChangedAsync.calledWith("energymeter.ctState", { val: 1, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerA", { val: 100, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerB", { val: 200, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerC", { val: 300, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("energymeter.powerTotal", { val: 600, ack: true })).to.be
 				.true;
 		});
 
@@ -863,7 +860,7 @@ describe("MarstekVenusAdapter", function () {
 			});
 
 			await adapter.pollModeStatus();
-			expect(adapter.setStateChangedAsync.calledWith("control.mode", {val: "AI", ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("control.mode", { val: "AI", ack: true })).to.be.true;
 		});
 
 		it("pollModeStatus handles null mode", async () => {
@@ -888,10 +885,10 @@ describe("MarstekVenusAdapter", function () {
 		});
 
 		it("pollBLEStatus updates BLE state", async () => {
-			adapter.sendRequest = sandbox.stub().resolves({state: "connected"});
+			adapter.sendRequest = sandbox.stub().resolves({ state: "connected" });
 
 			await adapter.pollBLEStatus();
-			expect(adapter.setStateChangedAsync.calledWith("network.bleState", {val: "connected", ack: true})).to.be
+			expect(adapter.setStateChangedAsync.calledWith("network.bleState", { val: "connected", ack: true })).to.be
 				.true;
 		});
 
@@ -912,10 +909,10 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.pollPower();
 			expect(adapter.setStateChangedAsync.callCount).to.equal(4);
-			expect(adapter.setStateChangedAsync.calledWith("power.pv", {val: 500, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("power.grid", {val: 200, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("power.battery", {val: -100, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("power.load", {val: 150, ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pv", { val: 500, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.grid", { val: 200, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.battery", { val: -100, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.load", { val: 150, ack: true })).to.be.true;
 		});
 
 		it("pollPower handles partial response with some null values", async () => {
@@ -928,8 +925,8 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.pollPower();
 			expect(adapter.setStateChangedAsync.callCount).to.equal(2);
-			expect(adapter.setStateChangedAsync.calledWith("power.pv", {val: 500, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("power.load", {val: 150, ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pv", { val: 500, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.load", { val: 150, ack: true })).to.be.true;
 		});
 
 		it("pollPower handles errors gracefully", async () => {
@@ -948,9 +945,9 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.pollPVStatus();
 			expect(adapter.setStateChangedAsync.callCount).to.equal(3);
-			expect(adapter.setStateChangedAsync.calledWith("power.pv", {val: 500, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("power.pvVoltage", {val: 220, ack: true})).to.be.true;
-			expect(adapter.setStateChangedAsync.calledWith("power.pvCurrent", {val: 2.3, ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pv", { val: 500, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pvVoltage", { val: 220, ack: true })).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pvCurrent", { val: 2.3, ack: true })).to.be.true;
 		});
 
 		it("pollPVStatus handles only voltage present", async () => {
@@ -962,7 +959,7 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.pollPVStatus();
 			expect(adapter.setStateChangedAsync.callCount).to.equal(1);
-			expect(adapter.setStateChangedAsync.calledWith("power.pvVoltage", {val: 220, ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pvVoltage", { val: 220, ack: true })).to.be.true;
 		});
 
 		it("pollPVStatus handles only current present", async () => {
@@ -974,7 +971,7 @@ describe("MarstekVenusAdapter", function () {
 
 			await adapter.pollPVStatus();
 			expect(adapter.setStateChangedAsync.callCount).to.equal(1);
-			expect(adapter.setStateChangedAsync.calledWith("power.pvCurrent", {val: 2.3, ack: true})).to.be.true;
+			expect(adapter.setStateChangedAsync.calledWith("power.pvCurrent", { val: 2.3, ack: true })).to.be.true;
 		});
 	});
 
@@ -1065,12 +1062,12 @@ describe("MarstekVenusAdapter", function () {
 		});
 
 		it("does nothing for acknowledged states", async () => {
-			await adapter.onStateChange("control.mode", {val: "Auto", ack: true});
+			await adapter.onStateChange("control.mode", { val: "Auto", ack: true });
 			expect(adapter.sendRequest.calledWith("ES.SetMode")).to.be.false;
 		});
 
 		it("does nothing for unknown state changes", async () => {
-			await adapter.onStateChange("power.pv", {val: 100, ack: false});
+			await adapter.onStateChange("power.pv", { val: 100, ack: false });
 			expect(adapter.sendRequest.calledWith("ES.SetMode")).to.be.false;
 		});
 
@@ -1078,7 +1075,7 @@ describe("MarstekVenusAdapter", function () {
 			adapter.getStateAsync.rejects(new Error("State error"));
 
 			try {
-				await adapter.onStateChange("control.mode", {val: "Auto", ack: false});
+				await adapter.onStateChange("control.mode", { val: "Auto", ack: false });
 			} catch {
 				// Expected to throw
 			}
@@ -1087,11 +1084,11 @@ describe("MarstekVenusAdapter", function () {
 
 		it("updates passive control values when not in Manual mode", async () => {
 			adapter.getStateAsync = sandbox.stub();
-			adapter.getStateAsync.withArgs("control.mode").resolves({val: "Passive"});
-			adapter.getStateAsync.withArgs("control.passivePower").resolves({val: 500});
-			adapter.getStateAsync.withArgs("control.passiveDuration").resolves({val: 600});
+			adapter.getStateAsync.withArgs("control.mode").resolves({ val: "Passive" });
+			adapter.getStateAsync.withArgs("control.passivePower").resolves({ val: 500 });
+			adapter.getStateAsync.withArgs("control.passiveDuration").resolves({ val: 600 });
 
-			await adapter.onStateChange("control.passivePower", {val: 300, ack: false});
+			await adapter.onStateChange("control.passivePower", { val: 300, ack: false });
 
 			expect(adapter.log.error.called).to.be.false;
 		});
@@ -1100,22 +1097,22 @@ describe("MarstekVenusAdapter", function () {
 			adapter.getStateAsync = sandbox.stub();
 			adapter.getStateAsync.withArgs("control.mode").resolves(null);
 
-			await adapter.onStateChange("control.passivePower", {val: 300, ack: false});
+			await adapter.onStateChange("control.passivePower", { val: 300, ack: false });
 
 			expect(adapter.sendRequest.calledWith("ES.SetMode")).to.be.false;
 		});
 
 		it("updates Manual mode settings when manual control changes", async () => {
 			adapter.getStateAsync = sandbox.stub();
-			adapter.getStateAsync.withArgs("control.mode").resolves({val: "Manual"});
-			adapter.getStateAsync.withArgs("control.manualTimeNum").resolves({val: 2});
-			adapter.getStateAsync.withArgs("control.manualStartTime").resolves({val: "06:00"});
-			adapter.getStateAsync.withArgs("control.manualEndTime").resolves({val: "18:00"});
-			adapter.getStateAsync.withArgs("control.manualWeekdays").resolves({val: 65});
-			adapter.getStateAsync.withArgs("control.manualPower").resolves({val: 2000});
-			adapter.getStateAsync.withArgs("control.manualEnable").resolves({val: false});
+			adapter.getStateAsync.withArgs("control.mode").resolves({ val: "Manual" });
+			adapter.getStateAsync.withArgs("control.manualTimeNum").resolves({ val: 2 });
+			adapter.getStateAsync.withArgs("control.manualStartTime").resolves({ val: "06:00" });
+			adapter.getStateAsync.withArgs("control.manualEndTime").resolves({ val: "18:00" });
+			adapter.getStateAsync.withArgs("control.manualWeekdays").resolves({ val: 65 });
+			adapter.getStateAsync.withArgs("control.manualPower").resolves({ val: 2000 });
+			adapter.getStateAsync.withArgs("control.manualEnable").resolves({ val: false });
 
-			await adapter.onStateChange("control.manualPower", {val: 1500, ack: false});
+			await adapter.onStateChange("control.manualPower", { val: 1500, ack: false });
 
 			expect(
 				adapter.sendRequest.calledWith(
@@ -1140,16 +1137,16 @@ describe("MarstekVenusAdapter", function () {
 
 		it("does not update Manual settings when not in Manual mode", async () => {
 			adapter.getStateAsync = sandbox.stub();
-			adapter.getStateAsync.withArgs("control.mode").resolves({val: "Auto"});
+			adapter.getStateAsync.withArgs("control.mode").resolves({ val: "Auto" });
 
-			await adapter.onStateChange("control.manualPower", {val: 1500, ack: false});
+			await adapter.onStateChange("control.manualPower", { val: 1500, ack: false });
 
 			expect(adapter.sendRequest.calledWith("ES.SetMode")).to.be.false;
 		});
 
 		it("handles missing manual control states with defaults", async () => {
 			adapter.getStateAsync = sandbox.stub();
-			adapter.getStateAsync.withArgs("control.mode").resolves({val: "Manual"});
+			adapter.getStateAsync.withArgs("control.mode").resolves({ val: "Manual" });
 			adapter.getStateAsync.withArgs("control.manualTimeNum").resolves(null);
 			adapter.getStateAsync.withArgs("control.manualStartTime").resolves(null);
 			adapter.getStateAsync.withArgs("control.manualEndTime").resolves(null);
@@ -1157,7 +1154,7 @@ describe("MarstekVenusAdapter", function () {
 			adapter.getStateAsync.withArgs("control.manualPower").resolves(null);
 			adapter.getStateAsync.withArgs("control.manualEnable").resolves(null);
 
-			await adapter.onStateChange("control.manualTimeNum", {val: 1, ack: false});
+			await adapter.onStateChange("control.manualTimeNum", { val: 1, ack: false });
 
 			expect(
 				adapter.sendRequest.calledWith(
@@ -1206,7 +1203,7 @@ describe("MarstekVenusAdapter", function () {
 	describe("discoverDevices()", () => {
 		beforeEach(async () => {
 			await adapter.onReady();
-			adapter._socket = {send: sandbox.stub().yields(null)};
+			adapter._socket = { send: sandbox.stub().yields(null) };
 			sandbox.stub(adapter, "setTimeout").callsFake(fn => {
 				fn();
 				return {};
@@ -1256,15 +1253,15 @@ describe("MarstekVenusAdapter", function () {
 
 		it("handles valid control values", async () => {
 			await adapter.setControlTarget(150);
-			expect(adapter.sendRequest.calledWith("Marstek.SetTargetPower", {power: 150})).to.be.true;
+			expect(adapter.sendRequest.calledWith("Marstek.SetTargetPower", { power: 150 })).to.be.true;
 		});
 
 		it("clamps values within min/max range", async () => {
 			await adapter.setControlTarget(-2000);
-			expect(adapter.sendRequest.calledWith("Marstek.SetTargetPower", {power: -1500})).to.be.true;
+			expect(adapter.sendRequest.calledWith("Marstek.SetTargetPower", { power: -1500 })).to.be.true;
 
 			await adapter.setControlTarget(2000);
-			expect(adapter.sendRequest.calledWith("Marstek.SetTargetPower", {power: 1500})).to.be.true;
+			expect(adapter.sendRequest.calledWith("Marstek.SetTargetPower", { power: 1500 })).to.be.true;
 		});
 
 		it("ignores null and undefined values", async () => {
@@ -1276,36 +1273,48 @@ describe("MarstekVenusAdapter", function () {
 	describe("sendRequest PLACEHOLDER handling (lines 97-114)", () => {
 		beforeEach(async () => {
 			await adapter.onReady();
+			clock.tick(2000);
 			if (adapter._normalPollTimer) {
 				clearInterval(adapter._normalPollTimer);
+				adapter._normalPollTimer = null;
 			}
 			if (adapter._slowPollTimer) {
 				clearInterval(adapter._slowPollTimer);
+				adapter._slowPollTimer = null;
 			}
-			adapter._normalPollTimer = null;
-			adapter._slowPollTimer = null;
+			if (adapter._fastPollTimer) {
+				clearInterval(adapter._fastPollTimer);
+				adapter._fastPollTimer = null;
+			}
 			adapter._pendingRequests.clear();
 			adapter._pendingRequestsByMethod = new Map();
+			adapter._requestQueue._shuttingDown = false;
+			adapter._requestQueue.queue = [];
+			adapter._requestQueue._busy = false;
 		});
 
 		it("returns existing promise when method already pending (lines 117-120)", async () => {
-			const existingPromise = Promise.resolve({result: "existing"});
-			adapter._pendingRequestsByMethod.set("Test.Method", existingPromise);
+			const expectedResult = { result: "existing" };
+			const existingPromise = Promise.resolve(expectedResult);
+			adapter._pendingRequestsByMethod.set("Test.Unique.Method.123", existingPromise);
 
-			const result = adapter.sendRequest("Test.Method", {});
+			const resultPromise = adapter.sendRequest("Test.Unique.Method.123", {});
 
-			expect(result).to.equal(existingPromise);
+			expect(resultPromise).to.be.instanceOf(Promise);
+			const result = await resultPromise;
+			expect(result).to.deep.equal(expectedResult);
+			expect(adapter.log.debug.calledWithMatch(/already pending/)).to.be.true;
 		});
 
 		it("waits for PLACEHOLDER to be replaced when method has PLACEHOLDER (lines 96-114)", async () => {
-			adapter._pendingRequestsByMethod.set("Test.Method", Symbol("pending"));
+			adapter._pendingRequestsByMethod.set("Test.Unique.Method.456", Symbol("pending"));
 
-			const resultPromise = adapter.sendRequest("Test.Method", {});
+			const resultPromise = adapter.sendRequest("Test.Unique.Method.456", {});
 
 			expect(resultPromise).to.be.instanceOf(Promise);
 
-			const updatedResult = {result: "updated"};
-			adapter._pendingRequestsByMethod.set("Test.Method", Promise.resolve(updatedResult));
+			const updatedResult = { result: "updated" };
+			adapter._pendingRequestsByMethod.set("Test.Unique.Method.456", Promise.resolve(updatedResult));
 
 			clock.tick(500);
 		});
@@ -1407,12 +1416,12 @@ describe("MarstekVenusAdapter", function () {
 				callback: sandbox.stub(),
 			};
 
-			adapter.onMessage(msgObj);
+			await adapter.onMessage(msgObj);
 
-			expect(adapter.sendTo.calledOnce).to.be.true;
+			expect(adapter.sendTo.called).to.be.true;
 			expect(adapter.sendTo.firstCall.args[0]).to.equal("admin.0");
 			expect(adapter.sendTo.firstCall.args[1]).to.equal("setSettings");
-			expect(adapter.sendTo.firstCall.args[2]).to.deep.equal({success: true});
+			expect(adapter.sendTo.firstCall.args[2]).to.deep.equal({ success: true });
 			expect(adapter.sendTo.firstCall.args[3]).to.equal(msgObj.callback);
 		});
 	});
@@ -1453,7 +1462,7 @@ describe("MarstekVenusAdapter", function () {
 
 		it("clears _requestQueue (line 359)", () => {
 			const clearStub = sandbox.stub();
-			adapter._requestQueue = {clear: clearStub};
+			adapter._requestQueue = { clear: clearStub };
 
 			adapter.onUnload(sandbox.stub());
 
@@ -1462,7 +1471,7 @@ describe("MarstekVenusAdapter", function () {
 
 		it("closes socket (lines 361-362)", () => {
 			const closeStub = sandbox.stub();
-			adapter._socket = {close: closeStub};
+			adapter._socket = { close: closeStub };
 
 			adapter.onUnload(sandbox.stub());
 
@@ -1499,7 +1508,6 @@ describe("MarstekVenusAdapter", function () {
 	describe("copyMethods helper (line 388)", () => {
 		it("handles null source gracefully", () => {
 			expect(() => {
-				const target = {};
 				const source = null;
 				if (!source) {
 					return;
