@@ -2,6 +2,7 @@
   "common": {
     "name": "marstek-venus",
     "version": "0.1.4",
+    "title": "Marstek Venus",
     "titleLang": {
       "en": "Marstek Venus Energy Storage",
       "de": "Marstek Venus Energiespeicher",
@@ -100,6 +101,7 @@
     "mode": "daemon",
     "compact": true,
     "tier": 3,
+    "supportedCompact": true,
     "supportedCompact": true,
     "noConfig": false,
     "noIntro": false,

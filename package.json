@@ -1,11 +1,11 @@
 {
   "name": "iobroker.marstek-venus",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "ioBroker adapter for Marstek Venus C/D/E energy storage devices",
   "author": {
     "name": "ioBroker Community"
   },
-  "homepage": "https://github.com/ioBroker/ioBroker.marstek-venus",
+  "homepage": "https://github.com/Slugger2k/ioBroker.marstek-venus",
   "license": "MIT",
   "keywords": [
     "ioBroker",
@@ -18,16 +18,21 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ioBroker/ioBroker.marstek-venus.git"
+    "url": "https://github.com/Slugger2k/ioBroker.marstek-venus.git"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.0.0"
+    "@iobroker/adapter-core": "^3.2.2"
   },
   "devDependencies": {
-    "@iobroker/testing": "^4.0.0",
+    "@iobroker/eslint-config": "^2.2.0",
+    "@iobroker/testing": "^4.1.3",
     "@iobroker/types": "^7.1.1",
     "@types/node": "^20.0.0",
     "chai": "^4.5.0",
+    "eslint": "^9.39.4",
     "nyc": "^18.0.0",
     "sinon": "^21.1.0",
     "typescript": "^5.0.0"
@@ -45,7 +50,9 @@
     "test:unit": "mocha 'test/*.test.js' --exit",
     "test:integration": "mocha test/integration.test.js --exit 2>/dev/null || true",
     "coverage": "nyc npm run test",
-    "coverage:report": "nyc report --reporter=text --reporter=lcov --reporter=html"
+    "coverage:report": "nyc report --reporter=text --reporter=lcov --reporter=html",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "nyc": {
     "all": true,
