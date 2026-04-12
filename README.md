@@ -156,7 +156,6 @@ The adapter implements 100% of the official Marstek Open API Revision 1.0:
 - Check that mode changes are properly configured
 - Ensure manual mode settings are valid
 
-### **WORK IN PROGRESS**
 
 ## License
 
