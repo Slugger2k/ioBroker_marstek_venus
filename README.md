@@ -187,8 +187,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 0.1.11 (2026-04-12)
 - Updated default configuration values
   - maxRetries: 3
   - requestTimeout: 3000ms
