@@ -379,8 +379,6 @@ const { Polling } = require("./lib/polling");
 const { Control } = require("./lib/control");
 const { Discovery } = require("./lib/discovery");
 
-Object.assign(MarstekVenusAdapter.prototype, utils.Adapter.prototype);
-
 // Helper function to copy methods from mixin to prototype
 function copyMethods(target, source) {
 	if (!source) {
