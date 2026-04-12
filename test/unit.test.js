@@ -1543,39 +1543,39 @@ describe("MarstekVenusAdapter", function () {
 			const target = {};
 			const source = {
 				testProp: 123,
-				testMethod: () => 'hello'
+				testMethod: () => "hello",
 			};
 
 			copyMethods(target, source);
 
 			expect(target.testProp).to.equal(123);
-			expect(target.testMethod()).to.equal('hello');
+			expect(target.testMethod()).to.equal("hello");
 		});
 
 		it("copies methods from class prototype source", () => {
 			const target = {};
 			class TestClass {
 				testMethod() {
-					return 'from class';
+					return "from class";
 				}
 			}
 
 			copyMethods(target, TestClass);
 
-			expect(target.testMethod).to.be.a('function');
-			expect(target.testMethod()).to.equal('from class');
+			expect(target.testMethod).to.be.a("function");
+			expect(target.testMethod()).to.equal("from class");
 		});
 
 		it("does not modify target when source is null", () => {
-			const target = { existing: 'value' };
+			const target = { existing: "value" };
 			copyMethods(target, null);
-			expect(target).to.deep.equal({ existing: 'value' });
+			expect(target).to.deep.equal({ existing: "value" });
 		});
 
 		it("does not modify target when source is undefined", () => {
-			const target = { existing: 'value' };
+			const target = { existing: "value" };
 			copyMethods(target, undefined);
-			expect(target).to.deep.equal({ existing: 'value' });
+			expect(target).to.deep.equal({ existing: "value" });
 		});
 	});
 

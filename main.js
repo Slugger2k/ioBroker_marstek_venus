@@ -297,7 +297,7 @@ class MarstekVenusAdapter extends utils.Adapter {
 		} else if (obj.command === "setSettings") {
 			const settings = obj.values;
 			this.config.autoDiscovery = !!settings.autoDiscovery;
-			this.config.ipAddress = typeof settings.ipAddress === 'string' ? settings.ipAddress.trim() : '';
+			this.config.ipAddress = typeof settings.ipAddress === "string" ? settings.ipAddress.trim() : "";
 			this.config.udpPort = Math.max(1, Math.min(65535, parseInt(settings.udpPort, 10) || 30000));
 			this.config.pollInterval = Math.max(500, Math.min(60000, parseInt(settings.pollInterval, 10) || 20000));
 
