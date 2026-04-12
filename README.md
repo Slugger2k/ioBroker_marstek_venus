@@ -1,3 +1,9 @@
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Slugger2k/ioBroker.marstek-venus/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/iobroker.marstek-venus.svg)](https://www.npmjs.com/package/iobroker.marstek-venus)
+[![Downloads](https://img.shields.io/npm/dt/iobroker.marstek-venus.svg)](https://www.npmjs.com/package/iobroker.marstek-venus)
+[![Build Status](https://github.com/Slugger2k/ioBroker.marstek-venus/actions/workflows/test-and-release.yml/badge.svg)](https://github.com/Slugger2k/ioBroker.marstek-venus/actions)
+[![Integration Tests](https://github.com/Slugger2k/ioBroker.marstek-venus/actions/workflows/test-and-release.yml/badge.svg?label=Integration)](https://github.com/Slugger2k/ioBroker.marstek-venus/actions)
+
 # ioBroker.marstek-venus Adapter
 
 The ioBroker.marstek-venus adapter provides full integration with Marstek Venus series energy storage systems, implementing the official Open API for complete device control and monitoring.
