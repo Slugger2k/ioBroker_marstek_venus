@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "marstek-venus",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "titleLang": {
       "en": "Marstek Venus Energy Storage",
       "de": "Marstek Venus Energiespeicher",
@@ -29,6 +29,19 @@
       "zh-cn": "Marstek Venus C/D/E 储能设备适配器"
     },
     "news": {
+      "0.1.9": {
+        "en": "fix adapter checker issues",
+        "de": "fix adapter checker probleme",
+        "ru": "исправить проблемы проверки адаптера",
+        "pt": "corrigir problemas de verificação do adaptador",
+        "nl": "adaptercontroleproblemen oplossen",
+        "fr": "correction des problèmes de vérification de l'adaptateur",
+        "it": "risolvere i problemi dell'adattatore checker",
+        "es": "solucionar problemas de control de adaptador",
+        "pl": "problemy z sprawdzaniem adaptera",
+        "uk": "виправити проблеми перевірки адаптера",
+        "zh-cn": "固定适配器检查器问题"
+      },
       "0.1.8": {
         "en": "fix adapter checker issues",
         "de": "fix adapter checker probleme",
