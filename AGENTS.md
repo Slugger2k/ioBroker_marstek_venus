@@ -12,10 +12,14 @@ This is **iobroker.marstek-venus** - an ioBroker adapter for Marstek Venus A/C/D
 
 - **Type**: ioBroker Adapter
 - **Language**: Plain JavaScript (Node.js)
-- **Runtime**: Node.js >= 18.0.0, ioBroker js-controller >=5.0.0
+- **Runtime**: Node.js >= 20.0.0, ioBroker js-controller >=5.0.0
 - **Protocol**: UDP socket communication
 - **Main entry**: `main.js`
 - **No transpilation, no TypeScript, no build step required**
+
+### API Documentation
+
+The Marstek Device Open API documentation is located at `MarstekDeviceOpenApi.md` in the project root.
 
 ---
 

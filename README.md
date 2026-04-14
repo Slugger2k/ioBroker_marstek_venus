@@ -7,11 +7,58 @@
 
 The ioBroker.marstek-venus adapter provides full integration with Marstek Venus series energy storage systems, implementing the official Open API for complete device control and monitoring.
 
-## Supported Devices
-- ✅ Venus A
-- ✅ Venus C
-- ✅ Venus D
-- ✅ Venus E
+## Device Support
+> Sources: [marstekEnergy/ha_marstek](https://github.com/marstekEnergy/ha_marstek), [taurgis/has-marstek-local-api](https://github.com/taurgis/has-marstek-local-api), [rweijnen/marstek-firmware-archive](https://github.com/rweijnen/marstek-firmware-archive)
+
+| Device | Open API | PV Support | Notes |
+|--------|:--------:|:----------:|-------|
+| Venus C | ✅ | ❌ | Supported |
+| Venus E 2.0 | ❌ | ❌ | **Not compatible** — causes CT003 disconnection |
+| Venus E 3.0 | ✅ | ❌ | Requires "new firmware" (Control ≥ v144) |
+| Venus D 3.0 | ✅ | ✅ | Supported |
+| Venus A 3.0 | ✅ | ✅ | Supported |
+
+> ⚠️ **Venus E 2.0 warning**: Using the Open API on Venus E 2.0 may cause disconnection between the device and the CT003 current transformer. This is confirmed by both the official Marstek integration and multiple community integrations.
+
+## Firmware versions (Venus E 3.0 — firmware code: `VNSE3-0`)
+
+The firmware archive only covers Venus E 3.0. No community-archived firmware exists yet for Venus A/C/D.
+
+### Control firmware
+
+| Version | Date | Notable changes |
+|---------|------|-----------------|
+| **v1476** *(latest)* | Mar 2026 | Improved MQTT connection stability |
+| v144 | Nov 2025 | Anti-backflow power baseline; DOD setting; new energy meter support (SMR-P1/IR/TIC, TPM2-100CT); Bluetooth disable feature |
+
+### BMS firmware
+
+| Version | Date | Notable changes |
+|---------|------|-----------------|
+| **v110** *(latest)* | Dec 2025 | Re-release of v109 |
+| v106 | Oct 2025 | Fix SOC jump issue with Chuneng cells |
+
+## API Component Support by Device
+
+| Component | Venus C | Venus E 3.0 | Venus D 3.0 | Venus A 3.0 |
+|-----------|:-------:|:-----------:|:-----------:|:-----------:|
+| Marstek (discovery) | ✅ | ✅ | ✅ | ✅ |
+| WiFi | ✅ | ✅ | ✅ | ✅ |
+| Bluetooth | ✅ | ✅ | ✅ | ✅ |
+| Battery | ✅ | ✅ | ✅ | ✅ |
+| PV (Photovoltaic) | ❌ | ❌ | ✅ | ✅ |
+| ES (Energy System) | ✅ | ✅ | ✅ | ✅ |
+| EM (Energy Meter) | ✅ | ✅ | ✅ | ✅ |
+| DOD | ✅ | ✅ (≥ v144) | ✅ | ✅ |
+| Ble_block / Ble_Ctrl | ✅ | ✅ | ✅ | ✅ |
+| Led_Ctrl | ✅ | ✅ | ✅ | ✅ |
+
+## Requirements
+
+- Open API must be enabled in the Marstek mobile app
+- Device and client must be on the same LAN segment
+- UDP port 30000 (default) must be reachable
+
 
 ## Key Features
 
@@ -193,6 +240,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+
 ### 0.1.13 (2026-04-12)
 - Added Venus A device support to adapter descriptions
 - Updated all documentation to include Venus A in the supported devices list
