@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-const utils = require('@iobroker/adapter-core');
-const dgram = require('node:dgram');
-const { RateLimitQueue } = require('./lib/request-queue');
-const { Polling } = require('./lib/polling');
-const { Control } = require('./lib/control');
-const { Discovery } = require('./lib/discovery');
-const { Adapter: AdapterMixin } = require('./lib/adapter');
+const utils = require("@iobroker/adapter-core");
+const dgram = require("node:dgram");
+const { RateLimitQueue } = require("./lib/request-queue");
+const { Polling } = require("./lib/polling");
+const { Control } = require("./lib/control");
+const { Discovery } = require("./lib/discovery");
+const { Adapter: AdapterMixin } = require("./lib/adapter");
 const {
 	DEFAULT_FAST_POLL_INTERVAL,
 	DEFAULT_POLL_INTERVAL,
@@ -14,15 +14,22 @@ const {
 	DEFAULT_REQUEST_TIMEOUT,
 	DEFAULT_MAX_RETRIES,
 	REQUEST_ID_WRAP,
-} = require('./lib/constants');
+} = require("./lib/constants");
 
-const PENDING_SYMBOL = Symbol('pending');
+const PENDING_SYMBOL = Symbol("pending");
 
+/**
+ *
+ */
 class MarstekVenusAdapter extends utils.Adapter {
+	/**
+	 *
+	 * @param options
+	 */
 	constructor(options = {}) {
 		super({
 			...options,
-			name: 'marstek-venus',
+			name: "marstek-venus",
 		});
 
 		this._socket = null;
@@ -39,25 +46,28 @@ class MarstekVenusAdapter extends utils.Adapter {
 		this._slowPollingInProgress = false;
 		this._pollFailureCount = 0;
 
-		this.on('ready', () => this.onReady());
-		this.on('stateChange', (id, state) => this.onStateChange(id, state));
-		this.on('unload', callback => this.onUnload(callback));
-		this.on('message', obj => this.onMessage(obj));
+		this.on("ready", () => this.onReady());
+		this.on("stateChange", (id, state) => this.onStateChange(id, state));
+		this.on("unload", callback => this.onUnload(callback));
+		this.on("message", obj => this.onMessage(obj));
 	}
 
+	/**
+	 *
+	 */
 	async onReady() {
-		this.log.info('Starting Marstek Venus adapter');
+		this.log.info("Starting Marstek Venus adapter");
 
 		await this.initStates();
 
-		this._socket = dgram.createSocket('udp4');
+		this._socket = dgram.createSocket("udp4");
 
-		this._socket.on('error', err => {
+		this._socket.on("error", err => {
 			this.log.error(`UDP socket error: ${err.message}`);
 			this.recreateSocket();
 		});
 
-		this._socket.on('message', this.handleResponse.bind(this));
+		this._socket.on("message", this.handleResponse.bind(this));
 
 		this._socket.bind(0, () => {
 			this._socket.setBroadcast(true);
@@ -72,11 +82,14 @@ class MarstekVenusAdapter extends utils.Adapter {
 				this.log.info(`Using configured device: ${this.config.ipAddress}:${this.config.udpPort}`);
 				this.startPolling();
 			} else {
-				this.log.warn('No device configured and auto-discovery disabled');
+				this.log.warn("No device configured and auto-discovery disabled");
 			}
 		});
 	}
 
+	/**
+	 *
+	 */
 	recreateSocket() {
 		if (this._socket) {
 			try {
@@ -86,14 +99,14 @@ class MarstekVenusAdapter extends utils.Adapter {
 			}
 		}
 
-		this._socket = dgram.createSocket('udp4');
+		this._socket = dgram.createSocket("udp4");
 
-		this._socket.on('error', err => {
+		this._socket.on("error", err => {
 			this.log.error(`UDP socket error: ${err.message}`);
 			this.recreateSocket();
 		});
 
-		this._socket.on('message', this.handleResponse.bind(this));
+		this._socket.on("message", this.handleResponse.bind(this));
 
 		this._socket.bind(0, () => {
 			this._socket.setBroadcast(true);
@@ -102,10 +115,15 @@ class MarstekVenusAdapter extends utils.Adapter {
 		});
 	}
 
+	/**
+	 *
+	 * @param method
+	 * @param params
+	 */
 	async sendRequest(method, params = {}) {
 		if (!this._requestQueue) {
-			this.log.error('sendRequest: Request queue not initialized');
-			throw new Error('Request queue not initialized');
+			this.log.error("sendRequest: Request queue not initialized");
+			throw new Error("Request queue not initialized");
 		}
 
 		const targetIP = this._discoveredIP || this.config.ipAddress;
@@ -181,6 +199,11 @@ class MarstekVenusAdapter extends utils.Adapter {
 		return promise;
 	}
 
+	/**
+	 *
+	 * @param msgBuffer
+	 * @param rinfo
+	 */
 	handleResponse(msgBuffer, rinfo) {
 		try {
 			const response = JSON.parse(msgBuffer.toString());
@@ -214,9 +237,9 @@ class MarstekVenusAdapter extends utils.Adapter {
 							`Auto-selecting discovered device: ${this._discoveredIP} (${this._discoveredDeviceModel})`,
 						);
 						this.startPolling();
-						this.setState('info.device', { val: response.result.device, ack: true });
-						this.setState('info.firmware', { val: String(response.result.ver), ack: true });
-						this.setState('info.mac', {
+						this.setState("info.device", { val: response.result.device, ack: true });
+						this.setState("info.firmware", { val: String(response.result.ver), ack: true });
+						this.setState("info.mac", {
 							val: response.result.ble_mac || response.result.wifi_mac,
 							ack: true,
 						});
@@ -236,6 +259,9 @@ class MarstekVenusAdapter extends utils.Adapter {
 		}
 	}
 
+	/**
+	 *
+	 */
 	startFastPolling() {
 		const fastInterval = this.config.fastPollInterval || DEFAULT_FAST_POLL_INTERVAL;
 		this.log.info(`Starting fast polling loop (every ${fastInterval}ms)`);
@@ -247,6 +273,9 @@ class MarstekVenusAdapter extends utils.Adapter {
 		this.pollPower();
 	}
 
+	/**
+	 *
+	 */
 	startPolling() {
 		const pollInterval = this.config.pollInterval || DEFAULT_POLL_INTERVAL;
 		this.log.info(`Starting polling loop (every ${pollInterval}ms)`);
@@ -260,6 +289,9 @@ class MarstekVenusAdapter extends utils.Adapter {
 		this.poll();
 	}
 
+	/**
+	 *
+	 */
 	startSlowPolling() {
 		const slowInterval = this.config.slowPollInterval || DEFAULT_SLOW_POLL_INTERVAL;
 		this.log.info(`Starting slow polling loop (every ${slowInterval}ms)`);
@@ -271,6 +303,9 @@ class MarstekVenusAdapter extends utils.Adapter {
 		this.pollSlow();
 	}
 
+	/**
+	 *
+	 */
 	stopPolling() {
 		if (this._normalPollTimer) {
 			this.clearInterval(this._normalPollTimer);
@@ -286,8 +321,12 @@ class MarstekVenusAdapter extends utils.Adapter {
 		}
 	}
 
+	/**
+	 *
+	 * @param obj
+	 */
 	async onMessage(obj) {
-		if (obj.command === 'discover') {
+		if (obj.command === "discover") {
 			await this.discoverDevices();
 			if (obj.callback) {
 				this.sendTo(
@@ -300,16 +339,28 @@ class MarstekVenusAdapter extends utils.Adapter {
 					obj.callback,
 				);
 			}
-		} else if (obj.command === 'setSettings') {
+		} else if (obj.command === "setSettings") {
 			const settings = obj.values;
 			this.config.autoDiscovery = !!settings.autoDiscovery;
-			this.config.ipAddress = typeof settings.ipAddress === 'string' ? settings.ipAddress.trim() : '';
+			this.config.ipAddress = typeof settings.ipAddress === "string" ? settings.ipAddress.trim() : "";
 			this.config.udpPort = Math.max(1, Math.min(65535, parseInt(settings.udpPort, 10) || 30000));
-			this.config.pollInterval = Math.max(20000, Math.min(120000, parseInt(settings.pollInterval, 10) || DEFAULT_POLL_INTERVAL));
-			this.config.fastPollInterval = Math.max(10000, Math.min(120000, parseInt(settings.fastPollInterval, 10) || DEFAULT_FAST_POLL_INTERVAL));
-			this.config.maxRetries = Math.max(1, Math.min(10, parseInt(settings.maxRetries, 10) || DEFAULT_MAX_RETRIES));
-			this.config.requestTimeout = Math.max(1000, Math.min(30000, parseInt(settings.requestTimeout, 10) || DEFAULT_REQUEST_TIMEOUT));
-			this.config.deviceModel = settings.deviceModel || '';
+			this.config.pollInterval = Math.max(
+				20000,
+				Math.min(120000, parseInt(settings.pollInterval, 10) || DEFAULT_POLL_INTERVAL),
+			);
+			this.config.fastPollInterval = Math.max(
+				10000,
+				Math.min(120000, parseInt(settings.fastPollInterval, 10) || DEFAULT_FAST_POLL_INTERVAL),
+			);
+			this.config.maxRetries = Math.max(
+				1,
+				Math.min(10, parseInt(settings.maxRetries, 10) || DEFAULT_MAX_RETRIES),
+			);
+			this.config.requestTimeout = Math.max(
+				1000,
+				Math.min(30000, parseInt(settings.requestTimeout, 10) || DEFAULT_REQUEST_TIMEOUT),
+			);
+			this.config.deviceModel = settings.deviceModel || "";
 
 			await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, {
 				native: {
@@ -324,7 +375,7 @@ class MarstekVenusAdapter extends utils.Adapter {
 				},
 			});
 
-			this.log.info('Settings saved and persisted');
+			this.log.info("Settings saved and persisted");
 
 			this.stopPolling();
 			this.startPolling();
@@ -332,7 +383,7 @@ class MarstekVenusAdapter extends utils.Adapter {
 			if (obj.callback) {
 				this.sendTo(obj.from, obj.command, { success: true }, obj.callback);
 			}
-		} else if (obj.command === 'getSettings') {
+		} else if (obj.command === "getSettings") {
 			if (obj.callback) {
 				this.sendTo(
 					obj.from,
@@ -357,9 +408,13 @@ class MarstekVenusAdapter extends utils.Adapter {
 		}
 	}
 
+	/**
+	 *
+	 * @param callback
+	 */
 	onUnload(callback) {
 		try {
-			this.log.info('Shutting down Marstek Venus adapter');
+			this.log.info("Shutting down Marstek Venus adapter");
 
 			this.stopPolling();
 
@@ -372,7 +427,7 @@ class MarstekVenusAdapter extends utils.Adapter {
 
 			for (const [id, pending] of [...this._pendingRequests.entries()]) {
 				this.clearTimeout(pending.timeout);
-				pending.reject(new Error('Adapter shutting down'));
+				pending.reject(new Error("Adapter shutting down"));
 				this._pendingRequests.delete(id);
 			}
 
@@ -383,20 +438,31 @@ class MarstekVenusAdapter extends utils.Adapter {
 		}
 	}
 
+	/**
+	 *
+	 */
 	async initStates() {
 		if (AdapterMixin && AdapterMixin.prototype && AdapterMixin.prototype.initStates) {
 			await AdapterMixin.prototype.initStates.call(this);
 		} else {
-			this.log.warn('initStates: AdapterMixin not available');
+			this.log.warn("initStates: AdapterMixin not available");
 		}
 	}
 
+	/**
+	 *
+	 */
 	async discoverDevices() {
 		if (Discovery && Discovery.discoverDevices) {
 			await Discovery.discoverDevices.call(this);
 		}
 	}
 
+	/**
+	 *
+	 * @param fn
+	 * @param maxRetries
+	 */
 	async pollWithRetry(fn, maxRetries) {
 		if (Polling && Polling.pollWithRetry) {
 			return Polling.pollWithRetry.call(this, fn, maxRetries);
@@ -404,66 +470,99 @@ class MarstekVenusAdapter extends utils.Adapter {
 		return fn();
 	}
 
+	/**
+	 *
+	 */
 	async poll() {
 		if (Polling && Polling.poll) {
 			await Polling.poll.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollPower() {
 		if (Polling && Polling.pollPower) {
 			await Polling.pollPower.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollSlow() {
 		if (Polling && Polling.pollSlow) {
 			await Polling.pollSlow.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollESStatus() {
 		if (Polling && Polling.pollESStatus) {
 			await Polling.pollESStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollBatteryStatus() {
 		if (Polling && Polling.pollBatteryStatus) {
 			await Polling.pollBatteryStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollPVStatus() {
 		if (Polling && Polling.pollPVStatus) {
 			await Polling.pollPVStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollWifiStatus() {
 		if (Polling && Polling.pollWifiStatus) {
 			await Polling.pollWifiStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollBLEStatus() {
 		if (Polling && Polling.pollBLEStatus) {
 			await Polling.pollBLEStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollEMStatus() {
 		if (Polling && Polling.pollEMStatus) {
 			await Polling.pollEMStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	async pollModeStatus() {
 		if (Polling && Polling.pollModeStatus) {
 			await Polling.pollModeStatus.call(this);
 		}
 	}
 
+	/**
+	 *
+	 */
 	hasPVSupport() {
 		if (Polling && Polling.hasPVSupport) {
 			return Polling.hasPVSupport.call(this);
@@ -471,12 +570,21 @@ class MarstekVenusAdapter extends utils.Adapter {
 		return true;
 	}
 
+	/**
+	 *
+	 * @param id
+	 * @param state
+	 */
 	async onStateChange(id, state) {
 		if (Control && Control.onStateChange) {
 			await Control.onStateChange.call(this, id, state);
 		}
 	}
 
+	/**
+	 *
+	 * @param value
+	 */
 	async setControlTarget(value) {
 		if (Control && Control.setControlTarget) {
 			await Control.setControlTarget.call(this, value);

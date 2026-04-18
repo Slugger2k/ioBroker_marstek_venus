@@ -789,6 +789,26 @@ describe("MarstekVenusAdapter", function () {
 			expect(adapter.hasPVSupport()).to.be.false;
 		});
 
+		it("hasPVSupport returns true for VenusD 3.0", () => {
+			adapter._discoveredDeviceModel = "VenusD 3.0";
+			expect(adapter.hasPVSupport()).to.be.true;
+		});
+
+		it("hasPVSupport returns true for VenusA 3.0", () => {
+			adapter._discoveredDeviceModel = "VenusA 3.0";
+			expect(adapter.hasPVSupport()).to.be.true;
+		});
+
+		it("hasPVSupport returns false for VenusE 3.0", () => {
+			adapter._discoveredDeviceModel = "VenusE 3.0";
+			expect(adapter.hasPVSupport()).to.be.false;
+		});
+
+		it("hasPVSupport returns false for VenusC 3.0", () => {
+			adapter._discoveredDeviceModel = "VenusC 3.0";
+			expect(adapter.hasPVSupport()).to.be.false;
+		});
+
 		it("hasPVSupport returns true when no device model known", () => {
 			adapter._discoveredDeviceModel = null;
 			expect(adapter.hasPVSupport()).to.be.true;

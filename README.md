@@ -12,10 +12,10 @@ The ioBroker.marstek-venus adapter provides full integration with Marstek Venus 
 
 | Device | Open API | PV Support | Notes |
 |--------|:--------:|:----------:|-------|
-| Venus C | ✅ | ❌ | Supported |
-| Venus E 2.0 | ❌ | ❌ | **Not compatible** — causes CT003 disconnection |
-| Venus E 3.0 | ✅ | ❌ | Requires "new firmware" (Control ≥ v144) |
-| Venus D 3.0 | ✅ | ✅ | Supported |
+| Venus C | ❓ | ❓ | Supported |
+| Venus E 2.0 | ❓ | ❓ | **Not compatible** — causes CT003 disconnection |
+| Venus E 3.0 | ✅ | ❓ | Requires "new firmware" (Control ≥ v144) |
+| Venus D 3.0 | ❓ | ❓ | Supported |
 | Venus A 3.0 | ✅ | ✅ | Supported |
 
 > ⚠️ **Venus E 2.0 warning**: Using the Open API on Venus E 2.0 may cause disconnection between the device and the CT003 current transformer. This is confirmed by both the official Marstek integration and multiple community integrations.
@@ -46,7 +46,7 @@ The firmware archive only covers Venus E 3.0. No community-archived firmware exi
 | WiFi | ✅ | ✅ | ✅ | ✅ |
 | Bluetooth | ✅ | ✅ | ✅ | ✅ |
 | Battery | ✅ | ✅ | ✅ | ✅ |
-| PV (Photovoltaic) | ❌ | ❌ | ✅ | ✅ |
+| PV (Photovoltaic) | ❓ | ❓ | ✅ | ✅ |
 | ES (Energy System) | ✅ | ✅ | ✅ | ✅ |
 | EM (Energy Meter) | ✅ | ✅ | ✅ | ✅ |
 | DOD | ✅ | ✅ (≥ v144) | ✅ | ✅ |
@@ -240,7 +240,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Changelog
-### 0.1.15 (2026-04-18)
+### **WORK IN PROGRESS**
 - refactor: replace fragile mixin pattern (copyMethods runtime prototype patching) with explicit composition/delegation
 - refactor: replace busy-wait polling loop in sendRequest() with direct promise chain reuse
 - fix: PLACEHOLDER Symbol comparison - now defined once at module level instead of per-call
