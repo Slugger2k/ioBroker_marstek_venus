@@ -240,6 +240,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ## Changelog
+### **WORK IN PROGRESS**
+- verified timeout configuration values across all polling loops and request handling
+
 ### 0.1.15 (2026-04-19)
 - refactor: replace fragile mixin pattern 
 - refactor: replace busy-wait polling loop in sendRequest() with direct promise chain reuse
